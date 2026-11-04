@@ -9,14 +9,8 @@ Advanced Personality, Responsibility & Life Compatibility Assessment.
 - Autosave, timed warnings, auto-submit, locked answers after submission
 - Administrator dashboard (`#admin`): every submission from every device, with a full analysis for each, no downloading
 
-## Collect submissions from all devices (free, 5 minutes)
-1. Create a Google Sheet → **Extensions → Apps Script** → paste `backend/Code.gs`.
-2. Change `ADMIN_KEY` in that file to your own private key. Save.
-3. **Deploy → New deployment → Web app** · Execute as **Me** · Access **Anyone** → copy the `/exec` URL.
-4. In `index.html`, set `const SUBMIT_URL = "https://script.google.com/macros/s/…/exec";` and commit.
-5. Open `/#admin` and enter your `ADMIN_KEY`.
-
-Without step 4 the site still works offline: submissions stay on the device and can be exported/imported as JSON.
+## Submissions (Firebase, end-to-end encrypted)
+Each submission is encrypted on the participant's phone (RSA-OAEP + AES-GCM) and stored in Firebase Realtime Database at `hdp/submissions`. Only the admin passcode can unlock the private key (`src/keys/admin-keys.json`, PBKDF2-protected), so the stored data is unreadable without it. Open `/#admin` and enter the passcode to see every submission.
 
 ## Editing questions
-Edit `src/data.js`, then: `cd src && HDP_SUBMIT_URL="<your url>" node build.js && cp dist/index.html ../index.html`
+Edit `src/data.js`, then: `cd src && node build.js && cp dist/index.html ../index.html`

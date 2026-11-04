@@ -356,9 +356,9 @@ tr:last-child td{border-bottom:0}
   <div class="wrap wide stack" style="gap:20px">
     <div class="row" style="justify-content:space-between"><p class="eyebrow">Administrator</p><button id="adm-exit" class="btn ghost sm">Exit</button></div>
     <div id="adm-gate" class="panel stack" style="max-width:460px">
-      <h3>Administrator key</h3>
+      <h3>Administrator passcode</h3>
       <p class="muted small">The analysis is for the assessor only. Participants never see it.</p>
-      <div class="field"><label for="adm-code">Key</label><input id="adm-code" type="password" class="input" autocomplete="current-password"></div>
+      <div class="field"><label for="adm-code">Passcode</label><input id="adm-code" type="password" class="input" autocomplete="current-password"></div>
       <button id="adm-unlock" class="btn primary">Unlock</button>
       <p id="adm-err" class="small" style="color:var(--crit)" aria-live="polite"></p>
     </div>
@@ -395,11 +395,14 @@ tr:last-child td{border-bottom:0}
 (function(){
 "use strict";
 /* ================= CONFIG =================
-   SUBMIT_URL: your Google Apps Script web app URL (see README / backend/Code.gs).
-   Leave empty to run fully offline (responses stay on the device + file export). */
-const SUBMIT_URL = "https://script.google.com/macros/s/AKfycbzpQTUv7ACvSUk_lh5ZnwJuChw4QPhcwnKv1F-EipW0252CsMSwwkplkxHotOeJEgvi/exec";
-// Offline administrator key hash (default key: HDP-ADMIN-2026). Console: hdpHash("new key")
-const ADMIN_HASH = "81c97bcbb9c27837";
+   FIREBASE_DB: Firebase Realtime Database URL. Submissions are encrypted on the participant's
+   device with ADMIN_PUBKEY before upload; only the admin passcode can open ADMIN_VAULT
+   (the matching private key) and read them. */
+const FIREBASE_DB = "https://imucet-32224-default-rtdb.firebaseio.com";
+const DB_PATH = "hdp/submissions";
+const ADMIN_PUBKEY = "MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAg11t0akL6XUgbtqzbj0uoav7R5H9Lmo3N3tJyJcQyVlvKWTsa572KrAaTVSBEfmarcUose0TYIln3aIFaUrBW757kbkz7Z3ReROXqBLghfQpwDunN4XBoQmiNfGmM5PWEPw7mw25yjc9yqOlGZIhF4FaySOHRGLjF8q0qHAE2hnFwYclnXc4GWl6/Bxie1tamdN9dBSgpDos88gsITZvPnUDdt4lWA1Vstzv6T//oJowUCGhVAcDcOQuD/xTmAgXyueJ9pu0V+YpPDVww+cjR0IbdVLu6NSur6unwcRx6CiKRjuwv2ceqS93NHnhyYa4KgeME8GsThIXdUlVfWvbjrHthPpt+qCFgzdu1u2BaGGCf/cgSARsJZzIzx/sxpaGoowz3niay/DlJZPpePJbjjD5H2VwlCyHJ0sJtbRiLCSWyGib4CBwdh2kSfiNjPotpAbM4xPAlNdVT9BzqT1upHmVx88V9UqOM6O/nEb0TTpk23IEVCgAt+AmVgH9oEwzAgMBAAE=";
+const ADMIN_VAULT = {"salt":"G6/UKlZW9qqj6cYgHglnIw==","iv":"+reZn2xFxbhmOlCl","iter":600000,"ct":"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"};
+const SUBMIT_URL = FIREBASE_DB; // cloud on/off switch used below
 const TIME_LIMIT = 18*60;
 /* ========================================== */
 
@@ -428,6 +431,8 @@ function sget(k){try{return sessionStorage.getItem(k)}catch(e){return null}}
 function sset(k,v){try{sessionStorage.setItem(k,v)}catch(e){}}
 
 let S=load(STORE), tickTimer=null, lastTick=0, adminKey=null, advanceT=null;
+const ub64=b=>{const s=atob(b),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u};
+const b64=buf=>{const u=new Uint8Array(buf);let s="";for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s)};
 $("#f-n").textContent=N; $("#c-tot").textContent=N; $("#f-t").textContent=fmtClock(TIME_LIMIT);
 
 function rnd(n){const a=new Uint32Array(n);if(window.crypto&&crypto.getRandomValues)crypto.getRandomValues(a);else for(let i=0;i<n;i++)a[i]=Math.random()*4294967296;return a}
@@ -584,16 +589,29 @@ function buildExport(st){
     timeLimitSeconds:TIME_LIMIT,timeTakenSeconds:Math.round(taken),submissionType:st.submissionType,
     totals:{questions:N,answered:N-un.length,unanswered:un.length},unansweredQuestionIds:un,responses};
 }
-async function post(body){
-  const r=await fetch(SUBMIT_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body),redirect:"follow"});
-  const j=await r.json();return j;
+async function encryptFor(ex){
+  const pub=await crypto.subtle.importKey("spki",ub64(ADMIN_PUBKEY),{name:"RSA-OAEP",hash:"SHA-256"},false,["encrypt"]);
+  const k=await crypto.subtle.generateKey({name:"AES-GCM",length:256},true,["encrypt"]);
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=await crypto.subtle.encrypt({name:"AES-GCM",iv},k,new TextEncoder().encode(JSON.stringify(ex)));
+  const ek=await crypto.subtle.encrypt({name:"RSA-OAEP"},pub,await crypto.subtle.exportKey("raw",k));
+  return {v:1,t:Date.parse(ex.completedAt)||Date.now(),iv:b64(iv),ek:b64(ek),ct:b64(ct)};
+}
+async function decryptWith(priv,rec){
+  const raw=await crypto.subtle.decrypt({name:"RSA-OAEP"},priv,ub64(rec.ek));
+  const k=await crypto.subtle.importKey("raw",raw,"AES-GCM",false,["decrypt"]);
+  return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM",iv:ub64(rec.iv)},k,ub64(rec.ct))));
+}
+async function upload(ex){
+  const r=await fetch(FIREBASE_DB.replace(/\/$/,"")+"/"+DB_PATH+"/"+encodeURIComponent(ex.assessmentId)+".json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(await encryptFor(ex))});
+  if(!r.ok)throw new Error("HTTP "+r.status);return true;
 }
 let flushing=false;
 async function flushOutbox(){
   if(!SUBMIT_URL||flushing)return;const ob=load(OUTBOX)||[];if(!ob.length){sendState();return}
   flushing=true;sendState("sending");
   const left=[];
-  for(const ex of ob){try{const j=await post({action:"submit",payload:ex});if(!j||!j.ok)left.push(ex)}catch(e){left.push(ex)}}
+  for(const ex of ob){try{await upload(ex)}catch(e){left.push(ex)}}
   persist(OUTBOX,left);flushing=false;sendState(left.some(x=>S&&x.assessmentId===S.id)?"failed":"sent");
 }
 function sendState(st){
@@ -780,15 +798,18 @@ function normalise(ex){ // accept v1 files too
 }
 function loadLocal(){(load(HIST)||[]).forEach(ex=>addSub(ex,"This device"));if(S&&S.submitted)addSub(buildExport(S),"This device")}
 async function loadCloud(){
-  if(!SUBMIT_URL){cloudStatus="off";renderCloud();return}
+  if(!SUBMIT_URL||!adminKey){cloudStatus="off";renderCloud();return}
   cloudStatus="loading";renderCloud();
-  try{const j=await post({action:"list",key:adminKey});
-    if(j&&j.ok){(j.items||[]).forEach(ex=>addSub(normalise(ex),"Cloud"));cloudStatus="ok"}else cloudStatus=(j&&j.error==="unauthorized")?"denied":"error"}
+  try{const r=await fetch(FIREBASE_DB.replace(/\/$/,"")+"/"+DB_PATH+".json",{cache:"no-store"});
+    if(r.status===401||r.status===403){cloudStatus="denied"}
+    else{const all=(await r.json())||{};let bad=0;
+      for(const rec of Object.values(all)){try{addSub(normalise(await decryptWith(adminKey,rec)),"Cloud")}catch(e){bad++}}
+      cloudStatus="ok"}}
   catch(e){cloudStatus="error"}
   renderCloud();renderList();
 }
 function renderCloud(){
-  const el=$("#adm-cloud");const m={off:["","Cloud collection not set up · showing this device and added files"],loading:["warn","Loading submissions…"],ok:["ok","Live from all devices"],denied:["crit","Key not accepted by the submission sheet"],error:["crit","Couldn't reach the submission sheet"]}[cloudStatus];
+  const el=$("#adm-cloud");const m={off:["","Cloud collection not set up · showing this device and added files"],loading:["warn","Loading submissions…"],ok:["ok","Live from all devices"],denied:["crit","Firebase refused access. Check database rules."],error:["crit","Couldn't reach Firebase. Check your connection and press Refresh."]}[cloudStatus];
   el.innerHTML='<span class="dot '+m[0]+'"></span><span class="muted">'+m[1]+'</span>';
 }
 function quickFlags(ex){try{const A=analyse(ex);return A.rules.length+A.pairs.filter(p=>p.status==="Inconsistent").length+A.notes.length}catch(e){return 0}}
@@ -814,16 +835,23 @@ function renderAdmin(ex){
 }
 function openAdmin(){
   show("v-admin");clearInterval(tickTimer);
-  if(!adminKey){const k=sget("hdp_admin");if(k)adminKey=k}
+  if(!adminKey){const k=sget("hdp_admin");if(k){openVault(k).then(pk=>{adminKey=pk;openAdmin()}).catch(()=>{});}}
   $("#adm-gate").hidden=!!adminKey;$("#adm-list").hidden=!adminKey;$("#adm-report").hidden=true;
   if(adminKey){SUBS=new Map();loadLocal();renderList();renderCloud();loadCloud()}else setTimeout(()=>$("#adm-code").focus(),60);
 }
+async function openVault(pass){
+  const v=ADMIN_VAULT;const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pass),"PBKDF2",false,["deriveKey"]);
+  const k=await crypto.subtle.deriveKey({name:"PBKDF2",salt:ub64(v.salt),iterations:v.iter,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["decrypt"]);
+  const pk8=await crypto.subtle.decrypt({name:"AES-GCM",iv:ub64(v.iv)},k,ub64(v.ct));
+  return crypto.subtle.importKey("pkcs8",pk8,{name:"RSA-OAEP",hash:"SHA-256"},false,["decrypt"]);
+}
 async function unlock(){
   const k=$("#adm-code").value.trim();if(!k)return;$("#adm-err").textContent="";
-  let ok=hdpHash(k)===ADMIN_HASH;
-  if(!ok&&SUBMIT_URL){$("#adm-unlock").disabled=true;try{const j=await post({action:"list",key:k});ok=!!(j&&j.ok)}catch(e){}$("#adm-unlock").disabled=false}
-  if(!ok){$("#adm-err").textContent="That key is not correct.";return}
-  adminKey=k;sset("hdp_admin",k);$("#adm-code").value="";openAdmin();
+  const btn=$("#adm-unlock");btn.disabled=true;btn.textContent="Unlocking…";
+  try{adminKey=await openVault(k)}catch(e){adminKey=null}
+  btn.disabled=false;btn.textContent="Unlock";
+  if(!adminKey){$("#adm-err").textContent="That passcode is not correct.";return}
+  sset("hdp_admin",k);$("#adm-code").value="";openAdmin();
 }
 document.querySelectorAll("[data-go-admin]").forEach(b=>b.addEventListener("click",()=>{location.hash="admin"}));
 $("#adm-unlock").onclick=unlock;

@@ -37,12 +37,15 @@ function fnv(str){let h=0x811c9dc5;for(let i=0;i<str.length;i++){h^=str.charCode
 const code = process.env.HDP_ADMIN || "HDP-ADMIN-2026";
 const adminHash = fnv("hdp::" + code) + fnv(code + "::hdp");
 
+const KEYS = JSON.parse(fs.readFileSync(__dirname + "/keys/admin-keys.json", "utf8"));
 let t = fs.readFileSync(__dirname + "/template2.html", "utf8");
 t = t.replace("/*__ANALYSIS__*/", () => fs.readFileSync(__dirname + "/analysis_block.js", "utf8"));
 t = t.replace("__QUESTIONS__", () => JSON.stringify(merged))
-     .replace("__SUBMIT_URL__", () => (process.env.HDP_SUBMIT_URL || ""))
+     .replace("__FIREBASE_DB__", () => (process.env.HDP_FIREBASE_DB || "https://imucet-32224-default-rtdb.firebaseio.com"))
+     .replace("__ADMIN_PUBKEY__", () => KEYS.pub)
+     .replace("__ADMIN_VAULT__", () => JSON.stringify(KEYS.vault))
      .replace("__KEY__", () => keypack)
-     .replace("__ADMIN_HASH__", () => adminHash);
+     ;
 fs.mkdirSync(__dirname + "/dist", { recursive: true });
 fs.writeFileSync(__dirname + "/dist/artifact.html", t);
 const full = '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n<meta name="theme-color" content="#0A0F1F">\n' +
