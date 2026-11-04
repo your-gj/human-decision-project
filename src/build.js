@@ -19,6 +19,9 @@ for (const id of IX_ORDER) {
   ixq.push({ id, text, opts: opts.map((o, i) => ({ id: id + "-" + L[i], text: o[0] })) });
   ik[id] = Object.fromEntries(opts.map((o, i) => [id + "-" + L[i], [parseDims(o[1]), null, o[2] || null]]));
 }
+// merged order: an intimacy question after every ~4 main ones, starting after the 8th
+const merged = questions.slice();
+[8,13,18,23,28,32,35,38].forEach((pos, i) => merged.splice(pos, 0, ixq[i]));
 if (questions.length !== 30) problems.push("expected 30 questions, got " + questions.length);
 const cats = {}; ORDER.forEach(id => cats[id[0]] = (cats[id[0]] || 0) + 1);
 // coverage per dimension
@@ -34,9 +37,10 @@ function fnv(str){let h=0x811c9dc5;for(let i=0;i<str.length;i++){h^=str.charCode
 const code = process.env.HDP_ADMIN || "HDP-ADMIN-2026";
 const adminHash = fnv("hdp::" + code) + fnv(code + "::hdp");
 
-let t = fs.readFileSync(__dirname + "/template.html", "utf8");
-t = t.replace("__QUESTIONS__", () => JSON.stringify(questions))
-     .replace("__IXQ__", () => JSON.stringify(ixq))
+let t = fs.readFileSync(__dirname + "/template2.html", "utf8");
+t = t.replace("/*__ANALYSIS__*/", () => fs.readFileSync(__dirname + "/analysis_block.js", "utf8"));
+t = t.replace("__QUESTIONS__", () => JSON.stringify(merged))
+     .replace("__SUBMIT_URL__", () => (process.env.HDP_SUBMIT_URL || ""))
      .replace("__KEY__", () => keypack)
      .replace("__ADMIN_HASH__", () => adminHash);
 fs.mkdirSync(__dirname + "/dist", { recursive: true });
@@ -44,4 +48,4 @@ fs.writeFileSync(__dirname + "/dist/artifact.html", t);
 const full = '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n<meta name="theme-color" content="#0A0F1F">\n' +
   t.replace(/<style>/, "<style>\n:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}img{max-width:100%}") .replace(/(<\/style>)/, "$1\n</head>\n<body>") + "\n</body>\n</html>\n";
 fs.writeFileSync(__dirname + "/dist/index.html", full);
-console.log("categories", cats, "\ncoverage", cov, "\nproblems", problems, "\nsize", full.length);
+console.log("order", merged.map(q=>q.id).join(" "), "\ncategories", cats, "\ncoverage", cov, "\nproblems", problems, "\nsize", full.length);
