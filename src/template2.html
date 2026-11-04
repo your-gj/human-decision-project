@@ -253,7 +253,7 @@ tr:last-child td{border-bottom:0}
         <li>Many situations have no perfect answer. Every option has a cost.</li>
         <li>A few questions are about intimacy and physical closeness in a relationship. They are not explicit, and you may leave any of them unanswered.</li>
         <li>Swipe or use the buttons to move between situations. Answers lock once you submit.</li>
-        <li>The clock starts when you press Start and keeps running if you close the page. Progress saves automatically, and answers submit when time ends.</li>
+        <li>The clock starts when you press Start and keeps running if you close the page. Progress saves automatically. If time runs out, you can take up to two extra 5-minute blocks; otherwise answers submit automatically.</li>
       </ul>
       <hr class="hr">
       <div class="field"><label for="inp-name">Your name or reference code</label><input id="inp-name" class="input" autocomplete="off" maxlength="80" placeholder="e.g. Priya Sharma"></div>
@@ -395,6 +395,9 @@ const ADMIN_PUBKEY = "__ADMIN_PUBKEY__";
 const ADMIN_VAULT = __ADMIN_VAULT__;
 const SUBMIT_URL = FIREBASE_DB; // cloud on/off switch used below
 const TIME_LIMIT = 18*60;
+const EXTRA_BLOCK = 5*60;   // extra time offered when the clock runs out
+const EXTRA_MAX = 2;        // how many extra blocks may be taken
+const EXTRA_DECIDE = 60;    // seconds to choose before auto-submit
 /* ========================================== */
 
 const QUESTIONS = __QUESTIONS__;
@@ -469,7 +472,7 @@ function initIntro(){
 
 /* ---------- test ---------- */
 function startTest(){
-  if(remaining()<=0){submit(true);return}
+  if(remaining()<=0&&!canExtend()){submit(true);return}
   show("v-test");buildSegs();renderQ(0);updateProgress();
   lastTick=Date.now();clearInterval(tickTimer);tickTimer=setInterval(tick,250);tick();
 }
@@ -479,11 +482,23 @@ function tick(){
   if(!$("#v-test").hidden){const q=S.order[S.cur];S.qtime[q]=(S.qtime[q]||0)+(now-lastTick)/1000}
   lastTick=now;
   $("#clock-t").textContent=fmtClock(rem);$("#rv-clock").textContent=fmtClock(rem)+" left";
-  $("#ring-fg").setAttribute("stroke-dashoffset",(CIRC*(1-Math.max(0,rem)/TIME_LIMIT)).toFixed(2));
+  $("#ring-fg").setAttribute("stroke-dashoffset",(CIRC*(1-Math.max(0,rem)/((S.ext||0)?EXTRA_BLOCK:TIME_LIMIT))).toFixed(2));
   const r=$("#ring");r.classList.toggle("warn",rem<=300&&rem>120);r.classList.toggle("crit",rem<=120);
   for(const [sec,msg,lvl] of WARNINGS){if(rem<=sec&&!S.warned[sec]){S.warned[sec]=true;if(rem>sec-20||sec===30)toast(msg,lvl,sec===30);persist(STORE,S)}}
   if(Math.floor(now/1000)%5===0)persist(STORE,S);
-  if(rem<=0)submit(true);
+  if(rem<=0){if(canExtend())timeUp();else submit(true)}
+}
+function canExtend(){if(!S||S.submitted||(S.ext||0)>=EXTRA_MAX)return false;if(S.timeupAt&&Date.now()-S.timeupAt>EXTRA_DECIDE*1000+1500)return false;return true}
+let timeupT=null;
+function timeUp(){
+  if(!S.timeupAt){S.timeupAt=Date.now();persist(STORE,S)}
+  if(document.getElementById("timeup"))return;
+  clearTimeout(advanceT);$("#toast-root").innerHTML="";
+  const left=EXTRA_MAX-(S.ext||0);
+  $("#sheet-root").innerHTML='<div class="scrim"></div><div class="sheet" id="timeup" role="alertdialog" aria-modal="true" aria-labelledby="tu-h"><div class="sheet-in" style="gap:14px"><div class="grab"></div><p class="eyebrow">Time is up</p><h2 id="tu-h">Need a little more time?</h2><p class="muted">'+answeredCount()+' of '+N+' answered. You can take '+(EXTRA_BLOCK/60)+' more minutes'+(left>1?' (up to '+left+' times)':' (last extension)')+', or submit now.</p><p class="muted small">Submitting automatically in <b class="mono" id="tu-s">'+EXTRA_DECIDE+'</b>s</p><div class="row"><button class="btn" id="tu-submit" style="flex:1">Submit now</button><button class="btn primary" id="tu-more" style="flex:1.4">+'+(EXTRA_BLOCK/60)+' minutes</button></div></div></div>';
+  $("#tu-more").onclick=()=>{clearInterval(timeupT);S.ext=(S.ext||0)+1;S.extraUsed=(S.extraUsed||0)+EXTRA_BLOCK;S.endAt=Date.now()+EXTRA_BLOCK*1000;S.timeupAt=null;S.warned[120]=false;S.warned[30]=false;S.warned[600]=S.warned[300]=true;persist(STORE,S);closeSheet();toast((EXTRA_BLOCK/60)+" extra minutes added.","warn")};
+  $("#tu-submit").onclick=()=>{clearInterval(timeupT);closeSheet();submit(true)};
+  clearInterval(timeupT);timeupT=setInterval(()=>{const r=Math.ceil(EXTRA_DECIDE-(Date.now()-S.timeupAt)/1000);const el=$("#tu-s");if(el)el.textContent=Math.max(0,r);if(r<=0){clearInterval(timeupT);closeSheet();submit(true)}},250);
 }
 function buildSegs(){const s=$("#segs");s.innerHTML="";for(let i=0;i<N;i++)s.appendChild(document.createElement("i"))}
 function updateProgress(){
@@ -528,14 +543,14 @@ document.addEventListener("keydown",e=>{
   if($("#v-test").hidden||e.target.matches("input,textarea")||e.metaKey||e.ctrlKey||e.altKey)return;
   const n=parseInt(e.key,10);
   if(n>=1&&n<=6){const o=S.optOrder[S.order[S.cur]][n-1];if(o)choose(o)}
-  else if(e.key==="ArrowRight")$("#btn-next").click();else if(e.key==="ArrowLeft")go(S.cur-1);else if(e.key==="Escape")closeSheet();
+  else if(e.key==="ArrowRight")$("#btn-next").click();else if(e.key==="ArrowLeft")go(S.cur-1);else if(e.key==="Escape"&&!document.getElementById("timeup"))closeSheet();
 });
 (function swipe(){let x0=null,y0=0,t0=0;const el=$("#v-test");
   el.addEventListener("touchstart",e=>{if(e.target.closest(".actionbar,.topbar"))return;const t=e.touches[0];x0=t.clientX;y0=t.clientY;t0=Date.now()},{passive:true});
   el.addEventListener("touchend",e=>{if(x0===null)return;const t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;x0=null;if(Math.abs(dx)>60&&Math.abs(dy)<50&&Date.now()-t0<600){if(dx<0){if(S.cur===N-1)openReview();else go(S.cur+1)}else go(S.cur-1)}},{passive:true})})();
 
 /* ---------- sheet ---------- */
-function openSheet(){
+function openSheet(){if(document.getElementById("timeup"))return;
   const root=$("#sheet-root");
   let g='';S.order.forEach((qid,i)=>{g+='<button data-i="'+i+'" class="'+(S.answers[qid]?"ans ":"")+(i===S.cur?"cur":"")+'" aria-label="Situation '+(i+1)+(S.answers[qid]?", answered":", unanswered")+'">'+(i+1)+'</button>'});
   root.innerHTML='<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-modal="true" aria-label="All situations"><div class="sheet-in"><div class="grab"></div><div class="row" style="justify-content:space-between"><h3>All situations</h3><span class="chip mono">'+answeredCount()+' / '+N+' answered</span></div><div class="legend"><span><i class="a"></i>Answered</span><span><i></i>Unanswered</span></div><div class="qgrid">'+g+'</div><button class="linkish" id="sh-skin" style="align-self:flex-start">Change theme</button><div class="row"><button class="btn" data-close style="flex:1">Close</button><button class="btn primary" id="sh-review" style="flex:1">Review &amp; submit</button></div></div></div>';
@@ -564,7 +579,7 @@ $("#rv-yes").onclick=()=>submit(false);
 /* ---------- submit / export / send ---------- */
 function submit(auto){
   if(!S||S.submitted)return;
-  S.submitted=true;S.submittedAt=Math.min(Date.now(),S.endAt+1000);S.submissionType=auto?"time-expired":"manual";
+  S.submitted=true;S.submittedAt=Date.now();S.submissionType=auto?"time-expired":"manual";
   persist(STORE,S);clearInterval(tickTimer);clearTimeout(advanceT);$("#toast-root").innerHTML="";
   const ex=buildExport(S);
   const h=load(HIST)||[];if(!h.some(x=>x.assessmentId===ex.assessmentId)){h.unshift(ex);persist(HIST,h.slice(0,50))}
@@ -572,12 +587,12 @@ function submit(auto){
   showDone();flushOutbox();
 }
 function buildExport(st){
-  const taken=Math.min(TIME_LIMIT,(st.submittedAt-st.startedAt)/1000);
+  const taken=(st.submittedAt-st.startedAt)/1000;
   const responses=st.order.map((qid,i)=>{const q=byId[qid],sel=st.answers[qid]||null;
     return {n:i+1,questionId:qid,section:isX(qid)?"intimacy":"main",question:q.text,presentedOrder:st.optOrder[qid],selectedOptionId:sel,selectedOptionText:sel?q.opts.find(o=>o.id===sel).text:null,answerChanges:st.changes[qid]||0,secondsOnQuestion:Math.round(st.qtime[qid]||0)}});
   const un=responses.filter(r=>!r.selectedOptionId).map(r=>r.questionId);
   return {schema:SCHEMA,assessmentId:st.id,participant:{name:st.name,adultConfirmed:!!st.adult},startedAt:new Date(st.startedAt).toISOString(),completedAt:new Date(st.submittedAt).toISOString(),
-    timeLimitSeconds:TIME_LIMIT,timeTakenSeconds:Math.round(taken),submissionType:st.submissionType,
+    timeLimitSeconds:TIME_LIMIT,timeTakenSeconds:Math.round(taken),extraTimeBlocks:st.ext||0,extraTimeSeconds:st.extraUsed||0,overtimeSeconds:Math.max(0,Math.round(taken-TIME_LIMIT)),submissionType:st.submissionType,
     totals:{questions:N,answered:N-un.length,unanswered:un.length},unansweredQuestionIds:un,responses};
 }
 async function encryptFor(ex){
@@ -724,7 +739,7 @@ $("#adm-exit").onclick=()=>{location.hash=""};
 function route(){
   if(location.hash==="#admin"){openAdmin();return}
   if(S&&S.submitted){showDone();return}
-  if(S&&!S.submitted){if(remaining()<=0)submit(true);else startTest();return}
+  if(S&&!S.submitted){if(remaining()<=0&&!canExtend())submit(true);else startTest();return}
   show("v-intro");
 }
 window.addEventListener("hashchange",route);

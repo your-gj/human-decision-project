@@ -53,7 +53,7 @@ function adminReportInner(ex,A,forFile){
   const col=s=>forFile?[c.ok,c.ac,c.warn][band(s)]:bandColor(s);
   let h='';
   h+='<section class="rep-sec"><p class="eyebrow">Administrator report · confidential</p><h2 style="margin-top:6px">'+esc(ex.participant&&ex.participant.name||"Participant")+'</h2>';
-  h+='<div class="tbl-wrap"><table><tr><th>Assessment ID</th><th>Answered</th><th>Time taken</th><th>Completed</th><th>Submission</th></tr><tr><td class="mono">'+esc(ex.assessmentId)+'</td><td class="mono">'+ex.totals.answered+' / '+ex.totals.questions+'</td><td class="mono">'+fmtDur(ex.timeTakenSeconds)+'</td><td>'+esc(new Date(ex.completedAt).toLocaleString())+'</td><td>'+(ex.submissionType==="manual"?"Manual":"Time expired")+'</td></tr></table></div>';
+  h+='<div class="tbl-wrap"><table><tr><th>Assessment ID</th><th>Answered</th><th>Time taken</th><th>Completed</th><th>Submission</th><th>Extra time</th></tr><tr><td class="mono">'+esc(ex.assessmentId)+'</td><td class="mono">'+ex.totals.answered+' / '+ex.totals.questions+'</td><td class="mono">'+fmtDur(ex.timeTakenSeconds)+'</td><td>'+esc(new Date(ex.completedAt).toLocaleString())+'</td><td>'+(ex.submissionType==="manual"?"Manual":"Time expired")+'</td><td class="mono">'+(ex.extraTimeBlocks?ex.extraTimeBlocks+' × '+Math.round((ex.extraTimeSeconds||0)/ex.extraTimeBlocks/60)+' min':'None')+'</td></tr></table></div>';
   if(ex.unansweredQuestionIds.length) h+='<p class="muted m">Unanswered: <span class="mono">'+ex.unansweredQuestionIds.map(esc).join(", ")+'</span></p>';
   if(A.unknown) h+='<p style="color:var(--crit)">'+A.unknown+' response(s) carried option IDs this version does not recognise and were skipped.</p>';
   h+='<p class="disclaimer note">These observations describe choices made in hypothetical situations under time pressure. They are prompts for conversation, not a diagnosis, a personality verdict or a measure of honesty. Read them alongside what you know of the person.</p></section>';
@@ -76,6 +76,7 @@ function adminReportInner(ex,A,forFile){
   const tm=[];
   if(A.fast.length) tm.push(A.fast.length+' situation(s) answered in under 6 seconds: <span class="mono">'+A.fast.join(", ")+'</span>.');
   if(A.changed.length) tm.push('Answer changed twice or more: <span class="mono">'+A.changed.join(", ")+'</span>.');
+  if(ex.extraTimeBlocks) tm.push('Asked for extra time '+ex.extraTimeBlocks+' time(s) and finished in '+fmtDur(ex.timeTakenSeconds)+' against the 18-minute limit.');
   if(ex.timeTakenSeconds<6*60) tm.push('Finished in '+fmtDur(ex.timeTakenSeconds)+', well within the limit; check whether situations were read fully.');
   if(tm.length) h+='<p class="muted m" style="font-size:.9rem">'+tm.join(" ")+'</p>';
   h+='</section>';
