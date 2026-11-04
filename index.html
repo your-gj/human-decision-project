@@ -24,12 +24,19 @@
   --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   --r:18px; --r-sm:12px;
   --gut-l:max(16px,env(safe-area-inset-left,0px)); --gut-r:max(16px,env(safe-area-inset-right,0px));
+  --accent-hi:#C7B8F7; --bar:rgba(9,13,28,.82); --bar-0:rgba(9,13,28,0); --bar-1:rgba(9,13,28,.94); --scrim:rgba(4,6,14,.6);
+  --glow-1:rgba(151,129,234,.16); --glow-2:rgba(84,104,210,.12); --shadow:0 18px 50px rgba(0,0,0,.5);
   color-scheme:dark;
 }
+/* Themes (data-skin on <html>) */
+:root[data-skin="rose"]{--bg:#170A12;--bg-2:#200E18;--surface:#2A1320;--surface-2:#341927;--raise:#3D1F2F;--line:#47243A;--line-2:#5D3149;--fg:#FCEFF4;--muted:#DBB0C1;--faint:#9C7286;--accent:#F5A9C2;--accent-2:#E27CA1;--accent-hi:#FAC6D7;--accent-ink:#2A0A17;--accent-wash:rgba(245,169,194,.14);--accent-glow:rgba(226,124,161,.42);--bar:rgba(23,10,18,.84);--bar-0:rgba(23,10,18,0);--bar-1:rgba(23,10,18,.94);--scrim:rgba(12,4,9,.6);--glow-1:rgba(226,124,161,.2);--glow-2:rgba(170,90,200,.12);color-scheme:dark}
+:root[data-skin="blush"]{--bg:#FFF5F7;--bg-2:#FFFFFF;--surface:#FFEFF3;--surface-2:#FFE4EB;--raise:#FFFFFF;--line:#F3D5DE;--line-2:#E8BBCA;--fg:#3B1E2B;--muted:#80596A;--faint:#A98696;--accent:#D4517B;--accent-2:#E57B9C;--accent-hi:#E06D92;--accent-ink:#FFFFFF;--accent-wash:rgba(212,81,123,.10);--accent-glow:rgba(212,81,123,.35);--ok:#2E8F65;--warn:#B07416;--crit:#C33F4C;--bar:rgba(255,245,247,.86);--bar-0:rgba(255,245,247,0);--bar-1:rgba(255,245,247,.95);--scrim:rgba(60,20,35,.28);--glow-1:rgba(240,150,180,.28);--glow-2:rgba(255,200,170,.25);--shadow:0 18px 50px rgba(120,40,70,.18);color-scheme:light}
+:root[data-skin="lavender"]{--bg:#F6F3FF;--bg-2:#FFFFFF;--surface:#F0EBFF;--surface-2:#E7E0FE;--raise:#FFFFFF;--line:#DED5FA;--line-2:#C9BCF3;--fg:#241C40;--muted:#625A86;--faint:#8F87AF;--accent:#6D53D6;--accent-2:#8A74E5;--accent-hi:#8169E0;--accent-ink:#FFFFFF;--accent-wash:rgba(109,83,214,.10);--accent-glow:rgba(109,83,214,.32);--ok:#2E8F65;--warn:#B07416;--crit:#C33F4C;--bar:rgba(246,243,255,.86);--bar-0:rgba(246,243,255,0);--bar-1:rgba(246,243,255,.95);--scrim:rgba(30,20,60,.28);--glow-1:rgba(160,140,240,.3);--glow-2:rgba(140,200,255,.22);--shadow:0 18px 50px rgba(50,30,120,.16);color-scheme:light}
+:root[data-skin="sunset"]{--bg:#160F14;--bg-2:#1E141A;--surface:#291A20;--surface-2:#332028;--raise:#3B2630;--line:#45303A;--line-2:#5B4050;--fg:#FFF2EA;--muted:#E0B9A6;--faint:#A08072;--accent:#FFB38A;--accent-2:#F48A7A;--accent-hi:#FFCBA9;--accent-ink:#2A1208;--accent-wash:rgba(255,179,138,.14);--accent-glow:rgba(244,138,122,.4);--bar:rgba(22,15,20,.84);--bar-0:rgba(22,15,20,0);--bar-1:rgba(22,15,20,.94);--scrim:rgba(10,5,8,.6);--glow-1:rgba(244,138,122,.2);--glow-2:rgba(200,100,170,.14);color-scheme:dark}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{min-height:100%}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 var(--f-body);-webkit-font-smoothing:antialiased;overscroll-behavior-y:none}
-body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(900px 520px at 100% -8%,rgba(151,129,234,.16),transparent 62%),radial-gradient(760px 480px at -12% 108%,rgba(84,104,210,.12),transparent 60%)}
+body{margin:0;background:var(--bg);transition:background .4s,color .4s;color:var(--fg);font:16px/1.6 var(--f-body);-webkit-font-smoothing:antialiased;overscroll-behavior-y:none}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(900px 520px at 100% -8%,var(--glow-1),transparent 62%),radial-gradient(760px 480px at -12% 108%,var(--glow-2),transparent 60%)}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
 button,input,textarea{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:8px}
@@ -52,8 +59,8 @@ p{margin:0}
 .btn{appearance:none;border:1px solid var(--line-2);background:var(--surface);color:var(--fg);padding:12px 20px;border-radius:999px;font-weight:600;font-size:.95rem;cursor:pointer;transition:background .2s,border-color .2s,transform .12s,box-shadow .2s;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;touch-action:manipulation}
 .btn:hover{border-color:var(--accent);background:var(--surface-2)}
 .btn:active{transform:scale(.97)}
-.btn.primary{background:linear-gradient(180deg,#C7B8F7,var(--accent));border-color:transparent;color:var(--accent-ink);box-shadow:0 8px 24px -8px var(--accent-glow)}
-.btn.primary:hover{background:linear-gradient(180deg,#D3C7F9,#C2B2F6)}
+.btn.primary{background:linear-gradient(180deg,var(--accent-hi),var(--accent));border-color:transparent;color:var(--accent-ink);box-shadow:0 8px 24px -8px var(--accent-glow)}
+.btn.primary:hover{filter:brightness(1.06)}
 .btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
 .btn.ghost:hover{color:var(--fg);background:var(--surface)}
 .btn.danger{border-color:rgba(242,140,140,.5)}
@@ -88,7 +95,7 @@ p{margin:0}
 .hr{height:1px;background:var(--line);border:0;margin:4px 0}
 
 /* test chrome */
-.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(9,13,28,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bar);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
 .topbar-in{max-width:720px;margin:0 auto;padding-left:var(--gut-l);padding-right:var(--gut-r);padding-block:10px 10px;display:flex;align-items:center;gap:12px}
 .ring{position:relative;width:52px;height:52px;flex:none}
 .ring svg{transform:rotate(-90deg)}
@@ -119,12 +126,12 @@ p{margin:0}
 .opt[aria-checked="true"] .k{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-size:0}
 .opt[aria-checked="true"] .k::after{content:"";width:9px;height:5px;border-left:2px solid var(--accent-ink);border-bottom:2px solid var(--accent-ink);transform:rotate(-45deg) translate(1px,-1px)}
 .hint{margin-top:18px;font-size:.8rem;color:var(--faint);text-align:center}
-.actionbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:linear-gradient(180deg,rgba(9,13,28,0),rgba(9,13,28,.92) 28%);padding-top:22px}
+.actionbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:linear-gradient(180deg,var(--bar-0),var(--bar-1) 28%);padding-top:22px}
 .actionbar-in{max-width:720px;margin:0 auto;padding-left:var(--gut-l);padding-right:var(--gut-r);padding-bottom:calc(14px + env(safe-area-inset-bottom,0px));display:flex;gap:10px}
 .actionbar .btn.primary{flex:1}
 
 /* sheet */
-.scrim{position:fixed;inset:0;z-index:40;background:rgba(4,6,14,.6);backdrop-filter:blur(3px);animation:fade .2s ease both}
+.scrim{position:fixed;inset:0;z-index:40;background:var(--scrim);backdrop-filter:blur(3px);animation:fade .2s ease both}
 @keyframes fade{from{opacity:0}}
 .sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;background:var(--surface);border-top:1px solid var(--line-2);border-radius:22px 22px 0 0;max-height:82vh;overflow:auto;animation:up .28s cubic-bezier(.2,.8,.2,1) both}
 @keyframes up{from{transform:translateY(40px);opacity:0}}
@@ -139,7 +146,7 @@ p{margin:0}
 .legend i.a{background:var(--surface-2)}
 
 /* toast */
-.toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 82px);z-index:50;width:min(520px,calc(100% - 32px));background:var(--raise);border:1px solid var(--line-2);border-left:3px solid var(--warn);border-radius:var(--r-sm);padding:12px 16px;box-shadow:0 18px 50px rgba(0,0,0,.5);display:flex;gap:12px;align-items:flex-start;animation:drop .35s ease both}
+.toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 82px);z-index:50;width:min(520px,calc(100% - 32px));background:var(--raise);border:1px solid var(--line-2);border-left:3px solid var(--warn);border-radius:var(--r-sm);padding:12px 16px;box-shadow:var(--shadow);display:flex;gap:12px;align-items:flex-start;animation:drop .35s ease both}
 .toast.crit{border-left-color:var(--crit)}
 .toast b{font-family:var(--f-mono);font-weight:500}
 @keyframes drop{from{opacity:0;transform:translate(-50%,-10px)}to{opacity:1;transform:translate(-50%,0)}}
@@ -199,6 +206,23 @@ tr:last-child td{border-bottom:0}
 .pat .meter::after{display:none}
 .disclaimer{font-size:.85rem;color:var(--muted);border:1px dashed var(--line-2);border-radius:var(--r-sm);padding:12px 14px}
 
+/* theme picker */
+.skin-btn{position:fixed;z-index:25;top:calc(env(safe-area-inset-top,0px) + 12px);right:max(12px,env(safe-area-inset-right,0px));width:44px;height:44px;border-radius:50%;border:1px solid var(--line-2);background:var(--bar);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:grid;place-items:center;cursor:pointer;color:var(--accent)}
+.skins{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.skin{border:1px solid var(--line);border-radius:var(--r-sm);padding:12px;background:var(--bg-2);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:10px;color:var(--fg)}
+.skin[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.skin .sw{display:flex;height:34px;border-radius:8px;overflow:hidden}
+.skin .sw i{flex:1}
+.skin b{font-weight:600;font-size:.92rem}
+.skin span{font-size:.76rem;color:var(--muted);margin-top:-8px}
+#v-admin .wrap>.row:first-child,#v-review .wrap>.row:first-child{padding-right:52px}
+.heart{display:inline-block;color:var(--accent)}
+@keyframes beat{0%,100%{transform:scale(1)}14%{transform:scale(1.18)}28%{transform:scale(1)}42%{transform:scale(1.12)}}
+.heart.beat{animation:beat 2.4s ease-in-out infinite}
+.petals{position:fixed;inset:0;pointer-events:none;z-index:-1;overflow:hidden}
+.petals i{position:absolute;bottom:-30px;width:10px;height:10px;opacity:.0;color:var(--accent);animation:float linear infinite}
+.petals i::before{content:"\2665";font-size:inherit}
+@keyframes float{0%{transform:translateY(0) rotate(0);opacity:0}10%{opacity:.35}90%{opacity:.25}100%{transform:translateY(-110vh) rotate(40deg);opacity:0}}
 @media (max-width:620px){
   .stats{grid-template-columns:1fr 1fr}
   .two{grid-template-columns:1fr}
@@ -220,7 +244,7 @@ tr:last-child td{border-bottom:0}
 <section id="v-intro" class="view" hidden>
   <div class="wrap stack" style="gap:26px">
     <div class="hero">
-      <svg class="orbit" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="34" fill="none" stroke="var(--line-2)"/><circle cx="36" cy="36" r="24" fill="none" stroke="var(--line)" stroke-dasharray="2 4"/><g class="hand"><path d="M36 36V6" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round"/><circle cx="36" cy="6" r="3" fill="var(--accent)"/></g><circle cx="36" cy="36" r="3" fill="var(--fg)"/></svg>
+      <svg class="orbit" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="34" fill="none" stroke="var(--line-2)"/><circle cx="36" cy="36" r="24" fill="none" stroke="var(--line)" stroke-dasharray="2 4"/><g class="hand"><path d="M36 36V6" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round"/><path d="M36 10.5c-.4-.4-4.6-3.6-4.6-6.1 0-1.4 1.1-2.4 2.3-2.4.9 0 1.7.5 2.3 1.3.6-.8 1.4-1.3 2.3-1.3 1.2 0 2.3 1 2.3 2.4 0 2.5-4.2 5.7-4.6 6.1z" fill="var(--accent)"/></g><circle cx="36" cy="36" r="3" fill="var(--fg)"/></svg>
       <p class="eyebrow">Situational judgement assessment</p>
       <h1>The Human Decision Project</h1>
       <p class="tagline">Advanced Personality, Responsibility &amp; Life Compatibility Assessment</p>
@@ -247,7 +271,7 @@ tr:last-child td{border-bottom:0}
       <button id="btn-start" class="btn primary block" disabled>Start Assessment</button>
       <p id="intro-hint" class="muted small" style="text-align:center"></p>
     </div>
-    <div class="foot"><span>The Human Decision Project</span><button class="linkish" data-go-admin>Administrator</button></div>
+    <div class="foot"><span>Made with care <span class="heart beat">&#9829;</span></span><button class="linkish" data-go-admin>Administrator</button></div>
   </div>
 </section>
 
@@ -362,6 +386,8 @@ tr:last-child td{border-bottom:0}
 </section>
 </div>
 
+<div class="petals" aria-hidden="true" id="petals"></div>
+<button id="skin-btn" class="skin-btn" aria-label="Change theme" title="Change theme"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.9 1.8-1.9 0-.5-.2-.9-.5-1.3-.3-.3-.5-.8-.5-1.3 0-1 .8-1.8 1.8-1.8H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><circle cx="7.5" cy="11.5" r="1.2" fill="currentColor"/><circle cx="10.5" cy="7.5" r="1.2" fill="currentColor"/><circle cx="15.5" cy="7.5" r="1.2" fill="currentColor"/></svg></button>
 <div id="sheet-root"></div>
 <div id="toast-root" aria-live="assertive"></div>
 
@@ -407,13 +433,28 @@ $("#f-n").textContent=N; $("#c-tot").textContent=N; $("#f-t").textContent=fmtClo
 function rnd(n){const a=new Uint32Array(n);if(window.crypto&&crypto.getRandomValues)crypto.getRandomValues(a);else for(let i=0;i<n;i++)a[i]=Math.random()*4294967296;return a}
 function shuffle(arr){const a=arr.slice();const r=rnd(a.length);for(let i=a.length-1;i>0;i--){const j=r[i]%(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
 function newId(){const d=new Date();const r=rnd(2);const s=(r[0].toString(36)+r[1].toString(36)).toUpperCase().slice(0,6).padEnd(6,"X");return "HDP-"+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+"-"+s}
-function show(id){document.querySelectorAll("#app > section").forEach(s=>s.hidden=s.id!==id);closeSheet();window.scrollTo(0,0)}
+function show(id){document.querySelectorAll("#app > section").forEach(s=>s.hidden=s.id!==id);const sb=document.getElementById("skin-btn");if(sb)sb.hidden=id==="v-test";closeSheet();window.scrollTo(0,0)}
 function remaining(){return S?(S.endAt-Date.now())/1000:TIME_LIMIT}
 function answeredCount(){return S?Object.keys(S.answers).length:0}
 function buzz(){try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}}
 const reduced=()=>matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function toast(msg,level,stay){const root=$("#toast-root");root.innerHTML="";const t=document.createElement("div");t.className="toast"+(level==="crit"?" crit":"");t.setAttribute("role","alert");t.innerHTML='<b>'+esc(fmtClock(remaining()))+'</b><span>'+esc(msg)+'</span>';root.appendChild(t);if(!stay)setTimeout(()=>t.remove(),6500)}
+
+/* ---------- themes ---------- */
+const SKINS=[["midnight","Midnight","Navy & lavender",["#090D1C","#18203F","#BBA9F4"]],["rose","Rosé","Wine & pink",["#170A12","#341927","#F5A9C2"]],["blush","Blush","Soft pink, light",["#FFF5F7","#FFE4EB","#D4517B"]],["lavender","Lavender","Lilac, light",["#F6F3FF","#E7E0FE","#6D53D6"]],["sunset","Sunset","Plum & peach",["#160F14","#332028","#FFB38A"]]];
+function applySkin(k){if(!SKINS.some(x=>x[0]===k))k="rose";if(k==="midnight")document.documentElement.removeAttribute("data-skin");else document.documentElement.setAttribute("data-skin",k);try{localStorage.setItem("hdp_skin",k)}catch(e){}
+  const m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content",getComputedStyle(document.documentElement).getPropertyValue("--bg").trim())}
+function currentSkin(){try{return localStorage.getItem("hdp_skin")||"rose"}catch(e){return "rose"}}
+function openSkins(){
+  const cur=currentSkin();const root=$("#sheet-root");
+  root.innerHTML='<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-modal="true" aria-label="Themes"><div class="sheet-in"><div class="grab"></div><h3>Choose a theme</h3><div class="skins">'+SKINS.map(([k,n,d,c])=>'<button class="skin" data-k="'+k+'" aria-pressed="'+(k===cur)+'"><span class="sw">'+c.map(x=>'<i style="background:'+x+'"></i>').join("")+'</span><b>'+n+'</b><span>'+d+'</span></button>').join("")+'</div><button class="btn" data-close>Done</button></div></div>';
+  root.querySelectorAll("[data-close]").forEach(b=>b.onclick=closeSheet);
+  root.querySelectorAll(".skin").forEach(b=>b.onclick=()=>{applySkin(b.dataset.k);root.querySelectorAll(".skin").forEach(x=>x.setAttribute("aria-pressed",String(x===b)))});
+}
+$("#skin-btn").onclick=openSkins;
+applySkin(currentSkin());
+(function petals(){if(reduced())return;const box=$("#petals");for(let i=0;i<9;i++){const p=document.createElement("i");p.style.left=(5+Math.random()*90)+"%";p.style.fontSize=(9+Math.random()*10)+"px";p.style.animationDuration=(16+Math.random()*14)+"s";p.style.animationDelay=(-Math.random()*25)+"s";box.appendChild(p)}})();
 
 /* ---------- intro ---------- */
 function initIntro(){
@@ -501,10 +542,11 @@ document.addEventListener("keydown",e=>{
 function openSheet(){
   const root=$("#sheet-root");
   let g='';S.order.forEach((qid,i)=>{g+='<button data-i="'+i+'" class="'+(S.answers[qid]?"ans ":"")+(i===S.cur?"cur":"")+'" aria-label="Situation '+(i+1)+(S.answers[qid]?", answered":", unanswered")+'">'+(i+1)+'</button>'});
-  root.innerHTML='<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-modal="true" aria-label="All situations"><div class="sheet-in"><div class="grab"></div><div class="row" style="justify-content:space-between"><h3>All situations</h3><span class="chip mono">'+answeredCount()+' / '+N+' answered</span></div><div class="legend"><span><i class="a"></i>Answered</span><span><i></i>Unanswered</span></div><div class="qgrid">'+g+'</div><div class="row"><button class="btn" data-close style="flex:1">Close</button><button class="btn primary" id="sh-review" style="flex:1">Review &amp; submit</button></div></div></div>';
+  root.innerHTML='<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-modal="true" aria-label="All situations"><div class="sheet-in"><div class="grab"></div><div class="row" style="justify-content:space-between"><h3>All situations</h3><span class="chip mono">'+answeredCount()+' / '+N+' answered</span></div><div class="legend"><span><i class="a"></i>Answered</span><span><i></i>Unanswered</span></div><div class="qgrid">'+g+'</div><button class="linkish" id="sh-skin" style="align-self:flex-start">Change theme</button><div class="row"><button class="btn" data-close style="flex:1">Close</button><button class="btn primary" id="sh-review" style="flex:1">Review &amp; submit</button></div></div></div>';
   root.querySelectorAll("[data-close]").forEach(b=>b.onclick=closeSheet);
   root.querySelectorAll(".qgrid button").forEach(b=>b.onclick=()=>{closeSheet();go(+b.dataset.i)});
   $("#sh-review").onclick=()=>{closeSheet();openReview()};
+  $("#sh-skin").onclick=openSkins;
 }
 function closeSheet(){$("#sheet-root").innerHTML=""}
 $("#btn-map").onclick=openSheet;
