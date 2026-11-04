@@ -1,16 +1,16 @@
-# The Human Decision Project
+# Relationship Rapid Fire
 
-Advanced Personality, Responsibility & Life Compatibility Assessment.
+20 Questions. Honest Choices. Real Compatibility.
 
-**Live:** https://your-gj.github.io/human-decision-project/
+**Live:** https://your-gj.github.io/human-decision-project/ · **Admin:** `/#admin`
 
-- 38 timed situations in 18 minutes: 30 judgement scenarios plus 8 intimacy and sexual-compatibility questions mixed in (18+ confirmation required; intimacy questions can be left unanswered)
-- Mobile-first: thumb-reach buttons, auto-advance on answer, swipe between questions, question map
-- Autosave, timed warnings, auto-submit, locked answers after submission
-- Administrator dashboard (`#admin`): every submission from every device, with a full analysis for each, no downloading
+- 20 questions in 6 categories (loyalty, emotional maturity, finances, future, physical intimacy, trust), 4–5 options each, answer order shuffled
+- 15-minute timer with warnings at 5 min, 2 min and 30 s; auto-submits when time ends
+- One question per screen, answers lock (no going back); intimacy questions can be skipped
+- Submissions are encrypted on the device and stored in Firebase (`rrf/submissions`); only the admin passcode can read them
+- Admin: every submission live, full report (loyalty, emotional maturity, finances, sexual compatibility, communication, commitment, conflicting answers, friction points), compare two people, download JSON + HTML report
+- Five themes (Rosé default)
 
-## Submissions (Firebase, end-to-end encrypted)
-Each submission is encrypted on the participant's phone (RSA-OAEP + AES-GCM) and stored in Firebase Realtime Database at `hdp/submissions`. Only the admin passcode can unlock the private key (`src/keys/admin-keys.json`, PBKDF2-protected), so the stored data is unreadable without it. Open `/#admin` and enter the passcode to see every submission.
+Edit questions in `src/data.js`, then `cd src && node build.js && cp dist/index.html ../index.html`.
 
-## Editing questions
-Edit `src/data.js`, then: `cd src && node build.js && cp dist/index.html ../index.html`
+The earlier Human Decision Project assessment is kept at `/classic/`.

@@ -1,0 +1,373 @@
+<title>Relationship Rapid Fire</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="20 Questions. Honest Choices. Real Compatibility.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/*__CSS__*/
+/* Rapid Fire additions */
+.big-num{font:400 clamp(4.2rem,22vw,7rem)/.9 var(--f-display);color:var(--accent);letter-spacing:-.03em}
+.title-row{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+.cat{font:500 .72rem/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.cat i{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.private-note{font-size:.84rem;color:var(--muted);border:1px dashed var(--line-2);border-radius:var(--r-sm);padding:10px 12px;margin-bottom:16px}
+.cats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.cats div{display:flex;justify-content:space-between;gap:8px;background:var(--bg-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:.86rem;min-width:0}
+.cats b{font:500 .82rem/1.5 var(--f-mono);color:var(--accent)}
+.lockline{display:flex;flex-direction:column;gap:8px;flex:1}
+.skipq{align-self:center}
+.cmp-q{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cmp-q > div{background:var(--bg-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:.88rem;min-width:0}
+.cmp-item{display:flex;flex-direction:column;gap:8px;padding-block:14px;border-top:1px solid var(--line)}
+.match{font:500 .74rem/1 var(--f-mono)}
+.select-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.select-row select{background:var(--bg);border:1px solid var(--line-2);border-radius:var(--r-sm);padding:10px 12px;min-height:46px;color:var(--fg);font:inherit;max-width:100%}
+.score-hero{display:flex;align-items:baseline;gap:10px}
+.score-hero b{font:400 3rem/1 var(--f-display);color:var(--accent)}
+@media (max-width:620px){.cats{grid-template-columns:1fr}.cmp-q{grid-template-columns:1fr}}
+</style>
+
+<div id="app">
+<!-- INTRO -->
+<section id="v-intro" class="view" hidden>
+  <div class="wrap stack" style="gap:24px">
+    <div class="hero">
+      <p class="eyebrow">Relationship Rapid Fire</p>
+      <div class="title-row"><span class="big-num">20</span><h1 style="padding-bottom:6px">Questions.</h1></div>
+      <p class="tagline">Honest choices. Real compatibility.</p>
+    </div>
+    <div class="facts">
+      <div><b>20</b><span>questions</span></div>
+      <div><b>15:00</b><span>minutes</span></div>
+      <div><b>1</b><span>answer each</span></div>
+    </div>
+    <div class="panel stack">
+      <h3>How it works</h3>
+      <ul class="rules">
+        <li>One question per screen. Pick what you would actually do, not the perfect answer.</li>
+        <li>Once you lock an answer you move on. There's no going back.</li>
+        <li>Four questions are about physical intimacy. They are respectful, not explicit, and you may skip any of them.</li>
+        <li>You'll get warnings at 5 minutes, 2 minutes and 30 seconds. When time runs out, your answers are sent automatically.</li>
+        <li>There's no score at the end. Answers go privately to the person who sent you this.</li>
+      </ul>
+      <hr class="hr">
+      <div class="field"><label for="inp-name">Your name</label><input id="inp-name" class="input" autocomplete="off" maxlength="60" placeholder="Your name"></div>
+      <label class="check" for="inp-adult"><input type="checkbox" id="inp-adult"> I am 18 or older.</label>
+      <label class="check" for="inp-consent"><input type="checkbox" id="inp-consent"> I'm answering honestly and agree to share my answers.</label>
+      <button id="btn-start" class="btn primary block" disabled>Start · 15 minutes</button>
+      <p id="intro-hint" class="muted small" style="text-align:center"></p>
+    </div>
+    <div class="foot"><span>Made with care <span class="heart beat">&#9829;</span></span><button class="linkish" data-go-admin>Admin</button></div>
+  </div>
+</section>
+
+<!-- TEST -->
+<section id="v-test" hidden>
+  <div class="topbar"><div class="topbar-in">
+    <div id="ring" class="ring" role="timer" aria-label="Time remaining"><svg width="52" height="52" viewBox="0 0 52 52"><circle class="bgc" cx="26" cy="26" r="22" fill="none" stroke-width="3"/><circle id="ring-fg" class="fgc" cx="26" cy="26" r="22" fill="none" stroke-width="3" stroke-linecap="round" stroke-dasharray="138.23" stroke-dashoffset="0"/></svg><span id="clock-t">15:00</span></div>
+    <div class="count">
+      <div class="count-top"><span><b id="c-cur">1</b> / 20</span><span id="c-cat"></span></div>
+      <div id="segs" class="segs" aria-hidden="true"></div>
+    </div>
+  </div></div>
+  <div class="wrap stage">
+    <div id="qcard" class="q-card">
+      <p class="cat"><i></i><span id="q-cat"></span></p>
+      <p id="q-note" class="private-note" hidden>Private and judgement-free. There's no right answer, and no one owes a partner intimacy. Answer only if you're comfortable.</p>
+      <p id="q-text" class="q-text"></p>
+      <div id="q-opts" class="opts" role="radiogroup" aria-labelledby="q-text"></div>
+    </div>
+  </div>
+  <div class="actionbar"><div class="actionbar-in"><div class="lockline">
+    <button id="btn-lock" class="btn primary block" disabled>Lock answer →</button>
+    <button id="btn-skip" class="linkish skipq" hidden>Prefer not to answer</button>
+  </div></div></div>
+</section>
+
+<!-- DONE -->
+<section id="v-done" class="view" hidden>
+  <div class="wrap stack" style="gap:20px">
+    <svg class="done-mark" viewBox="0 0 76 76" aria-hidden="true"><circle cx="38" cy="38" r="36" fill="none" stroke-width="2"/><path d="M24 39l9 9 19-20" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <p class="eyebrow" id="done-eyebrow">Submitted</p>
+    <h2>Thank you for being honest.</h2>
+    <p class="muted">Your answers have been recorded. There's no score here; they'll be talked about together.</p>
+    <div id="sendline" class="sendline"><span id="send-dot" class="dot"></span><span id="send-text"></span><button id="send-retry" class="btn sm" hidden>Try again</button></div>
+    <div class="stats" style="grid-template-columns:1fr 1fr">
+      <div><b id="ds-ans"></b><span>answered</span></div>
+      <div><b id="ds-time"></b><span>time taken</span></div>
+    </div>
+    <details><summary>Keep a copy of my answers</summary>
+      <div class="stack" style="gap:10px;margin-top:10px"><div class="row"><button id="btn-dl" class="btn sm">Download (.json)</button><button id="btn-copy" class="btn sm ghost">Copy</button></div><p id="dl-msg" class="muted small"></p></div>
+    </details>
+    <div class="foot"><span id="done-id" class="mono"></span><button id="btn-new" class="linkish">New person on this device</button></div>
+    <div id="new-confirm" class="confirm stack" hidden><p>Start a fresh test for someone else? This submission stays saved.</p><div class="row"><button id="new-cancel" class="btn">Cancel</button><button id="new-yes" class="btn primary">Start fresh</button></div></div>
+  </div>
+</section>
+
+<!-- ADMIN -->
+<section id="v-admin" class="view" hidden>
+  <div class="wrap wide stack" style="gap:20px">
+    <div class="row" style="justify-content:space-between"><p class="eyebrow">Admin</p><button id="adm-exit" class="btn ghost sm">Exit</button></div>
+    <div id="adm-gate" class="panel stack" style="max-width:460px">
+      <h3>Admin passcode</h3>
+      <div class="field"><label for="adm-code">Passcode</label><input id="adm-code" type="password" class="input" autocomplete="current-password"></div>
+      <button id="adm-unlock" class="btn primary">Unlock</button>
+      <p id="adm-err" class="small" style="color:var(--crit)" aria-live="polite"></p>
+    </div>
+    <div id="adm-list" class="stack" hidden>
+      <div class="row" style="justify-content:space-between;align-items:flex-end"><div><h2>Submissions</h2><p id="adm-count" class="muted small"></p></div><div id="adm-cloud" class="sendline small"></div></div>
+      <div class="toolbar"><input id="adm-q" class="input" type="search" placeholder="Search name" aria-label="Search"><button id="adm-refresh" class="btn sm">Refresh</button><label class="btn sm" for="adm-file" style="cursor:pointer">Add file</label><input id="adm-file" type="file" accept=".json,application/json" multiple hidden></div>
+      <div id="adm-subs" class="subs"></div>
+      <div class="panel stack" id="cmp-box" hidden>
+        <h3>Compare two people</h3>
+        <p class="muted small">See where two people's answers match and where they differ.</p>
+        <div class="select-row"><select id="cmp-a" aria-label="First person"></select><select id="cmp-b" aria-label="Second person"></select><button id="cmp-go" class="btn sm primary">Compare</button></div>
+      </div>
+      <p id="adm-load-err" class="small" style="color:var(--crit)"></p>
+    </div>
+    <div id="adm-report" hidden></div>
+  </div>
+</section>
+</div>
+
+<div class="petals" aria-hidden="true" id="petals"></div>
+<button id="skin-btn" class="skin-btn" aria-label="Change theme" title="Change theme"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.9 1.8-1.9 0-.5-.2-.9-.5-1.3-.3-.3-.5-.8-.5-1.3 0-1 .8-1.8 1.8-1.8H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><circle cx="7.5" cy="11.5" r="1.2" fill="currentColor"/><circle cx="10.5" cy="7.5" r="1.2" fill="currentColor"/><circle cx="15.5" cy="7.5" r="1.2" fill="currentColor"/></svg></button>
+<div id="sheet-root"></div>
+<div id="toast-root" aria-live="assertive"></div>
+
+<script>
+(function(){
+"use strict";
+/* ============ CONFIG ============ */
+const FIREBASE_DB = "__FIREBASE_DB__";
+const DB_PATH = "rrf/submissions";
+const ADMIN_PUBKEY = "__ADMIN_PUBKEY__";
+const ADMIN_VAULT = __ADMIN_VAULT__;
+const TIME_LIMIT = 15*60;
+/* ================================ */
+const DATA = __DATA__; // {cats, questions:[{id,cat,text,opts:[{id,text}]}]}
+const KEYPACK = "__KEY__";
+const WARNINGS=[[300,"5 minutes left.","warn"],[120,"2 minutes left.","crit"],[30,"30 seconds left. Answers send automatically when time ends.","crit"]];
+const STORE="rrf_state_v1",HIST="rrf_history_v1",OUTBOX="rrf_outbox_v1",SCHEMA="relationship-rapid-fire/1";
+const QS=DATA.questions,N=QS.length,CIRC=138.23;
+const byId=Object.fromEntries(QS.map(q=>[q.id,q]));
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad=n=>String(n).padStart(2,"0");
+const fmtClock=s=>{s=Math.max(0,Math.ceil(s));return pad(Math.floor(s/60))+":"+pad(s%60)};
+const fmtDur=s=>{s=Math.round(s);return Math.floor(s/60)+"m "+pad(s%60)+"s"};
+const ub64=b=>{const s=atob(b),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u};
+const b64=buf=>{const u=new Uint8Array(buf);let s="";for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s)};
+let KEY=null;const key=()=>KEY||(KEY=JSON.parse(new TextDecoder().decode(ub64(KEYPACK))));
+function load(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null}catch(e){return null}}
+function persist(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function drop(k){try{localStorage.removeItem(k)}catch(e){}}
+function sget(k){try{return sessionStorage.getItem(k)}catch(e){return null}}
+function sset(k,v){try{sessionStorage.setItem(k,v)}catch(e){}}
+const reduced=()=>matchMedia("(prefers-reduced-motion: reduce)").matches;
+function rnd(n){const a=new Uint32Array(n);crypto.getRandomValues(a);return a}
+function shuffle(arr){const a=arr.slice(),r=rnd(a.length);for(let i=a.length-1;i>0;i--){const j=r[i]%(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
+function newId(){const d=new Date(),r=rnd(2);return "RRF-"+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+"-"+(r[0].toString(36)+r[1].toString(36)).toUpperCase().slice(0,6).padEnd(6,"X")}
+function show(id){document.querySelectorAll("#app > section").forEach(s=>s.hidden=s.id!==id);$("#skin-btn").hidden=id==="v-test";closeSheet();window.scrollTo(0,0)}
+function closeSheet(){$("#sheet-root").innerHTML=""}
+function toast(msg,level,stay){const r=$("#toast-root");r.innerHTML="";const t=document.createElement("div");t.className="toast"+(level==="crit"?" crit":"");t.setAttribute("role","alert");t.innerHTML='<b>'+esc(fmtClock(remaining()))+'</b><span>'+esc(msg)+'</span>';r.appendChild(t);if(!stay)setTimeout(()=>t.remove(),6000)}
+function buzz(){try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}}
+
+/* ---------- themes ---------- */
+const SKINS=[["rose","Rosé","Wine & pink",["#170A12","#341927","#F5A9C2"]],["blush","Blush","Soft pink, light",["#FFF5F7","#FFE4EB","#D4517B"]],["lavender","Lavender","Lilac, light",["#F6F3FF","#E7E0FE","#6D53D6"]],["sunset","Sunset","Plum & peach",["#160F14","#332028","#FFB38A"]],["midnight","Midnight","Navy & lavender",["#090D1C","#18203F","#BBA9F4"]]];
+function applySkin(k){if(!SKINS.some(x=>x[0]===k))k="rose";if(k==="midnight")document.documentElement.removeAttribute("data-skin");else document.documentElement.setAttribute("data-skin",k);try{localStorage.setItem("rrf_skin",k)}catch(e){}const m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content",getComputedStyle(document.documentElement).getPropertyValue("--bg").trim())}
+function curSkin(){try{return localStorage.getItem("rrf_skin")||"rose"}catch(e){return "rose"}}
+$("#skin-btn").onclick=()=>{const cur=curSkin(),root=$("#sheet-root");
+  root.innerHTML='<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-modal="true" aria-label="Themes"><div class="sheet-in"><div class="grab"></div><h3>Choose a theme</h3><div class="skins">'+SKINS.map(([k,n,d,c])=>'<button class="skin" data-k="'+k+'" aria-pressed="'+(k===cur)+'"><span class="sw">'+c.map(x=>'<i style="background:'+x+'"></i>').join("")+'</span><b>'+n+'</b><span>'+d+'</span></button>').join("")+'</div><button class="btn" data-close>Done</button></div></div>';
+  root.querySelectorAll("[data-close]").forEach(b=>b.onclick=closeSheet);
+  root.querySelectorAll(".skin").forEach(b=>b.onclick=()=>{applySkin(b.dataset.k);root.querySelectorAll(".skin").forEach(x=>x.setAttribute("aria-pressed",String(x===b)))})};
+applySkin(curSkin());
+(function(){if(reduced())return;const box=$("#petals");for(let i=0;i<8;i++){const p=document.createElement("i");p.style.left=(5+Math.random()*90)+"%";p.style.fontSize=(9+Math.random()*10)+"px";p.style.animationDuration=(16+Math.random()*14)+"s";p.style.animationDelay=(-Math.random()*25)+"s";box.appendChild(p)}})();
+
+/* ---------- test ---------- */
+let S=load(STORE),tickT=null,lastTick=0,pick=null;
+function remaining(){return S?(S.endAt-Date.now())/1000:TIME_LIMIT}
+function initIntro(){
+  const name=$("#inp-name"),adult=$("#inp-adult"),consent=$("#inp-consent"),start=$("#btn-start"),hint=$("#intro-hint");
+  const sync=()=>{const ok=name.value.trim().length>=2&&adult.checked&&consent.checked;start.disabled=!ok;hint.textContent=(!adult.checked&&name.value.trim().length>=2)?"This is for adults 18 and over.":""};
+  name.addEventListener("input",sync);adult.addEventListener("change",sync);consent.addEventListener("change",sync);sync();
+  start.onclick=()=>{const now=Date.now();
+    S={v:1,id:newId(),name:name.value.trim(),startedAt:now,endAt:now+TIME_LIMIT*1000,optOrder:Object.fromEntries(QS.map(q=>[q.id,shuffle(q.opts.map(o=>o.id))])),answers:{},skipped:{},qtime:{},cur:0,warned:{},submitted:false};
+    persist(STORE,S);startTest()};
+}
+function startTest(){if(remaining()<=0){submit(true);return}show("v-test");const sg=$("#segs");sg.innerHTML="";for(let i=0;i<N;i++)sg.appendChild(document.createElement("i"));renderQ(false);lastTick=Date.now();clearTimeout(tickT);tick()}
+function tick(){
+  if(!S||S.submitted)return;
+  const now=Date.now(),rem=remaining();const q=QS[S.cur];if(q)S.qtime[q.id]=(S.qtime[q.id]||0)+(now-lastTick)/1000;lastTick=now;
+  $("#clock-t").textContent=fmtClock(rem);$("#ring-fg").setAttribute("stroke-dashoffset",(CIRC*(1-Math.max(0,rem)/TIME_LIMIT)).toFixed(2));
+  const r=$("#ring");r.classList.toggle("warn",rem<=300&&rem>120);r.classList.toggle("crit",rem<=120);
+  for(const [sec,msg,lvl] of WARNINGS)if(rem<=sec&&!S.warned[sec]){S.warned[sec]=true;if(rem>sec-20||sec===30)toast(msg,lvl,sec===30);persist(STORE,S)}
+  if(rem<=0){submit(true);return}
+  tickT=setTimeout(tick,250-(Date.now()%250));
+}
+function renderQ(animate){
+  const card=$("#qcard");
+  const paint=()=>{
+    const q=QS[S.cur];pick=null;
+    $("#c-cur").textContent=S.cur+1;$("#c-cat").textContent=DATA.cats[q.cat];$("#q-cat").textContent=DATA.cats[q.cat];
+    $("#q-note").hidden=q.cat!=="S";$("#btn-skip").hidden=q.cat!=="S";
+    $("#q-text").textContent=q.text;
+    const box=$("#q-opts");box.innerHTML="";
+    S.optOrder[q.id].forEach((oid,i)=>{const o=q.opts.find(z=>z.id===oid);const b=document.createElement("button");b.className="opt";b.type="button";b.setAttribute("role","radio");b.setAttribute("aria-checked","false");b.dataset.oid=oid;b.innerHTML='<span class="k">'+"ABCDE"[i]+'</span><span>'+esc(o.text)+'</span>';b.onclick=()=>{pick=oid;buzz();box.querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-checked",String(x===b)));$("#btn-lock").disabled=false};box.appendChild(b)});
+    $("#btn-lock").disabled=true;$("#btn-lock").textContent=S.cur===N-1?"Lock & finish":"Lock answer →";
+    [...$("#segs").children].forEach((el,i)=>el.className=i<S.cur?"a":i===S.cur?"c":"");
+  };
+  if(animate&&!reduced()){card.classList.add("out-l");setTimeout(()=>{paint();card.classList.remove("out-l");card.classList.add("in-l");void card.offsetWidth;card.classList.remove("in-l")},170)}else paint();
+}
+function advance(){S.cur++;persist(STORE,S);if(S.cur>=N)submit(false);else{renderQ(true);window.scrollTo(0,0)}}
+$("#btn-lock").onclick=()=>{if(!pick||S.submitted)return;S.answers[QS[S.cur].id]=pick;advance()};
+$("#btn-skip").onclick=()=>{if(S.submitted)return;S.skipped[QS[S.cur].id]=true;advance()};
+document.addEventListener("keydown",e=>{if($("#v-test").hidden||e.target.matches("input,textarea"))return;const n=parseInt(e.key,10);if(n>=1&&n<=5){const b=document.querySelectorAll("#q-opts .opt")[n-1];if(b)b.click()}else if(e.key==="Enter"&&pick)$("#btn-lock").click()});
+
+/* ---------- submit / send ---------- */
+function buildExport(st){
+  const responses=QS.map((q,i)=>{const sel=st.answers[q.id]||null;return {n:i+1,questionId:q.id,category:DATA.cats[q.cat],question:q.text,presentedOrder:st.optOrder[q.id],selectedOptionId:sel,selectedOptionText:sel?q.opts.find(o=>o.id===sel).text:null,skipped:!!st.skipped[q.id],secondsOnQuestion:Math.round(st.qtime[q.id]||0)}});
+  const answered=responses.filter(r=>r.selectedOptionId).length;
+  return {schema:SCHEMA,assessmentId:st.id,participant:{name:st.name,adultConfirmed:true},startedAt:new Date(st.startedAt).toISOString(),completedAt:new Date(st.submittedAt).toISOString(),timeLimitSeconds:TIME_LIMIT,timeTakenSeconds:Math.round(Math.min(TIME_LIMIT,(st.submittedAt-st.startedAt)/1000)),submissionType:st.submissionType,totals:{questions:N,answered,skipped:responses.filter(r=>r.skipped).length,unanswered:N-answered},responses};
+}
+function submit(auto){
+  if(!S||S.submitted)return;clearTimeout(tickT);
+  S.submitted=true;S.submittedAt=Math.min(Date.now(),S.endAt);S.submissionType=auto?"time-expired":"completed";persist(STORE,S);$("#toast-root").innerHTML="";
+  const ex=buildExport(S);const h=load(HIST)||[];if(!h.some(x=>x.assessmentId===ex.assessmentId)){h.unshift(ex);persist(HIST,h.slice(0,50))}
+  const ob=load(OUTBOX)||[];ob.push(ex);persist(OUTBOX,ob);showDone();flush();
+}
+async function encryptFor(ex){
+  const pub=await crypto.subtle.importKey("spki",ub64(ADMIN_PUBKEY),{name:"RSA-OAEP",hash:"SHA-256"},false,["encrypt"]);
+  const k=await crypto.subtle.generateKey({name:"AES-GCM",length:256},true,["encrypt"]);const iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=await crypto.subtle.encrypt({name:"AES-GCM",iv},k,new TextEncoder().encode(JSON.stringify(ex)));
+  const ek=await crypto.subtle.encrypt({name:"RSA-OAEP"},pub,await crypto.subtle.exportKey("raw",k));
+  return {v:1,t:Date.parse(ex.completedAt)||Date.now(),iv:b64(iv),ek:b64(ek),ct:b64(ct)};
+}
+async function decryptWith(priv,rec){const raw=await crypto.subtle.decrypt({name:"RSA-OAEP"},priv,ub64(rec.ek));const k=await crypto.subtle.importKey("raw",raw,"AES-GCM",false,["decrypt"]);return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM",iv:ub64(rec.iv)},k,ub64(rec.ct))))}
+const dbUrl=p=>FIREBASE_DB.replace(/\/$/,"")+"/"+p+".json";
+let flushing=false;
+async function flush(){if(flushing)return;const ob=load(OUTBOX)||[];if(!ob.length){sendState();return}flushing=true;sendState("sending");const left=[];
+  for(const ex of ob){try{const r=await fetch(dbUrl(DB_PATH+"/"+encodeURIComponent(ex.assessmentId)),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(await encryptFor(ex))});if(!r.ok)throw 0}catch(e){left.push(ex)}}
+  persist(OUTBOX,left);flushing=false;sendState()}
+function sendState(st){if(!S||!S.submitted)return;if(!st){st=(load(OUTBOX)||[]).some(x=>x.assessmentId===S.id)?"failed":"sent"}
+  $("#send-dot").className="dot "+(st==="sent"?"ok":st==="sending"?"warn":"crit");
+  $("#send-text").textContent=st==="sent"?"Sent privately.":st==="sending"?"Sending…":"Couldn't send yet. Saved on this phone; it will send next time this page opens online.";$("#send-retry").hidden=st!=="failed"}
+$("#send-retry").onclick=flush;window.addEventListener("online",flush);
+function showDone(){show("v-done");const ex=buildExport(S);$("#done-eyebrow").textContent=S.submissionType==="time-expired"?"Time's up · submitted":"Submitted";$("#ds-ans").textContent=ex.totals.answered+" / "+N;$("#ds-time").textContent=fmtDur(ex.timeTakenSeconds);$("#done-id").textContent=ex.assessmentId;sendState()}
+function download(name,text,type){try{const u=URL.createObjectURL(new Blob([text],{type}));const a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}catch(e){}}
+$("#btn-dl").onclick=()=>{const ex=buildExport(S);download(ex.assessmentId+".json",JSON.stringify(ex,null,2),"application/json");$("#dl-msg").textContent="Saved as "+ex.assessmentId+".json"};
+$("#btn-copy").onclick=async()=>{try{await navigator.clipboard.writeText(JSON.stringify(buildExport(S),null,2));$("#dl-msg").textContent="Copied."}catch(e){$("#dl-msg").textContent="Copy isn't allowed here. Use Download."}};
+$("#btn-new").onclick=()=>{$("#new-confirm").hidden=false};$("#new-cancel").onclick=()=>{$("#new-confirm").hidden=true};
+$("#new-yes").onclick=()=>{drop(STORE);location.hash="";location.reload()};
+
+/* ---------- analysis ---------- */
+const DIMS={loy:"Loyalty",emo:"Emotional maturity",fin:"Financial partnership",sx:"Sexual compatibility",com:"Communication",cmt:"Commitment",tru:"Trust & boundaries"};
+const SXSUB={sxc:"Talking about intimacy",sxr:"Consent & respect",sxf:"Flexibility with differences"};
+const ALLD={loy:1,emo:1,fin:1,com:1,cmt:1,tru:1,sxc:1,sxr:1,sxf:1};
+const OBS={
+ loy:["Chose to protect the relationship from money pressure, outside interest and interference.","Mostly loyal choices, with some openness to outside pressure or attention.","Several choices leave the relationship exposed to outside interest, money pressure or other people's opinions."],
+ emo:["Pauses, apologises and accepts fair criticism. Handles conflict maturely.","Handles conflict reasonably, with some ego or reactivity.","Anger, ego or defensiveness often take over in conflict."],
+ fin:["Sees money as a shared responsibility and would step up when needed.","Willing to share financially, with some limits.","Prefers to keep financial responsibility separate or with the partner."],
+ sx:["Open, respectful and flexible about intimacy and differences in desire.","Generally respectful, with some discomfort talking about it or adjusting.","Talking about intimacy or adjusting to differences looks difficult. Handle this conversation gently."],
+ com:["Raises issues early and calmly, and shares decisions.","Communicates on most things, sometimes indirectly.","Tends to withdraw, hint or go silent instead of talking."],
+ cmt:["Prioritises the relationship in hard situations: money, career and distance.","Committed, while weighing own plans.","Own plans or circumstances often come before the relationship."],
+ tru:["Balances openness with respect for privacy and space.","Mostly trusting, with some need for reassurance.","Needs control or reassurance (checking phones, struggling with space)."]
+};
+const PREF=["Not very important","Somewhat important","Important, alongside emotional closeness","Very important"];
+function sel(ex){const m={};(ex.responses||[]).forEach(r=>{if(r.selectedOptionId&&key().k[r.questionId]&&key().k[r.questionId][r.selectedOptionId])m[r.questionId]=r.selectedOptionId});return m}
+function dimScore(m,d){let got=0,max=0,n=0;for(const q in key().k){const opts=key().k[q];if(!Object.values(opts).some(o=>d in o[0]))continue;if(!m[q])continue;const mx=Math.max(...Object.values(opts).map(o=>o[0][d]||0));if(!mx)continue;got+=opts[m[q]][0][d]||0;max+=mx;n++}return n?{score:Math.round(got/max*100),n}:{score:null,n:0}}
+function analyse(ex){
+  if(!ex||ex.schema!==SCHEMA||!Array.isArray(ex.responses))throw new Error("This isn't a Relationship Rapid Fire response.");
+  const m=sel(ex),dims={};for(const d in ALLD)dims[d]=dimScore(m,d);
+  const sxs=["sxc","sxr","sxf"].map(d=>dims[d].score).filter(v=>v!==null);dims.sx={score:sxs.length?Math.round(sxs.reduce((a,b)=>a+b,0)/sxs.length):null,n:sxs.length};
+  const picked=new Set(Object.values(m));
+  const rules=key().rules.filter(([a,b])=>a.some(x=>picked.has(x))&&b.some(x=>picked.has(x))).map(r=>({msg:r[2],hit:[...r[0],...r[1]].filter(x=>picked.has(x))}));
+  const notes=Object.entries(m).filter(([q,o])=>key().k[q][o][1]).map(([q,o])=>({q,o,note:key().k[q][o][1]}));
+  const norm=(q,d)=>{const opts=key().k[q];if(!m[q])return null;const mx=Math.max(...Object.values(opts).map(o=>o[0][d]||0));return mx?(opts[m[q]][0][d]||0)/mx:null};
+  const pairs=key().pairs.map(([a,b,d,label])=>{const va=norm(a,d),vb=norm(b,d);let st="Not enough answers";if(va!==null&&vb!==null){const df=Math.abs(va-vb);st=df>=0.6?"Inconsistent":df>=0.35?"Some variation":"Consistent"}return {a,b,d,label,st,oa:m[a],ob:m[b]}});
+  const pref=m.S1?key().k.S1[m.S1][0].pref:null;
+  return {m,dims,rules,notes,pairs,pref};
+}
+const band=s=>s===null?null:s>=70?0:s>=45?1:2;
+const bandName=s=>["Strong","Moderate","Needs a conversation"][band(s)];
+const ansText=(q,o)=>o?byId[q].opts.find(x=>x.id===o).text:null;
+
+function reportHTML(ex,A,file){
+  const col=s=>file?["#2e8a63","#6a52cf","#b07416"][band(s)]:["var(--ok)","var(--accent)","var(--warn)"][band(s)];
+  const bar=(s)=>file?'<div class="bar"><span style="width:'+(s||0)+'%;background:'+(s===null?"#ccc":col(s))+'"></span></div>':'<div class="meter"><span style="width:'+(s||0)+'%;background:'+(s===null?"var(--line)":col(s))+'"></span></div>';
+  const dimBlock=(d,label,obs)=>{const v=A.dims[d],s=v.score;return '<div class="dim"><span class="nm">'+label+'</span>'+bar(s)+'<span class="val mono">'+(s===null?"–":s)+'</span><p class="obs m">'+(s===null?"No answers on this.":'<b style="color:'+col(s)+'">'+bandName(s)+'.</b> '+(obs?obs[band(s)]:""))+'</p></div>'};
+  const nm=esc(ex.participant&&ex.participant.name||"Participant");
+  let h='<section class="rep-sec"><p class="eyebrow">Admin report · private</p><h2 style="margin-top:6px">'+nm+'</h2>';
+  h+='<div class="tbl-wrap"><table><tr><th>ID</th><th>Answered</th><th>Skipped</th><th>Time</th><th>Finished</th></tr><tr><td class="mono">'+esc(ex.assessmentId)+'</td><td class="mono">'+ex.totals.answered+' / '+ex.totals.questions+'</td><td class="mono">'+ex.totals.skipped+'</td><td class="mono">'+fmtDur(ex.timeTakenSeconds)+'</td><td>'+esc(new Date(ex.completedAt).toLocaleString())+(ex.submissionType==="time-expired"?" · time ran out":"")+'</td></tr></table></div>';
+  h+='<p class="disclaimer note">These are reflections of answers to hypothetical situations. They do not detect lies or diagnose personality. Use them to start honest conversations.</p></section>';
+  const sections=[["loy","Loyalty assessment"],["emo","Emotional maturity assessment"],["fin","Financial partnership assessment"],["com","Communication compatibility"],["cmt","Commitment assessment"],["tru","Trust & personal boundaries"]];
+  h+='<section class="rep-sec"><h3>Assessments</h3><div class="dims">'+sections.map(([d,l])=>dimBlock(d,l,OBS[d])).join("")+'</div></section>';
+  h+='<section class="rep-sec"><h3>Sexual compatibility assessment</h3><div class="dims">'+dimBlock("sx","Overall",OBS.sx)+Object.entries(SXSUB).map(([d,l])=>dimBlock(d,l,null)).join("")+'</div>';
+  h+='<p><b>Importance of physical intimacy:</b> '+(A.pref===null?'<span class="muted m">Skipped or not answered</span>':esc(ansText("S1",A.m.S1)))+'</p>';
+  const sxn=A.notes.filter(n=>n.q[0]==="S");if(sxn.length)h+='<ul>'+sxn.map(n=>'<li>'+esc(n.note)+'</li>').join("")+'</ul>';
+  h+='<p class="muted m small">Compatibility here depends on how both partners answer. Use "Compare two people" to see them side by side. Talk about it privately and without pressure.</p></section>';
+  h+='<section class="rep-sec"><h3>Related questions compared</h3><div class="tbl-wrap"><table><tr><th>Related questions</th><th>Answers</th><th>Result</th></tr>'+A.pairs.map(p=>{const c=p.st==="Consistent"?"ok":p.st==="Inconsistent"?"crit":p.st==="Some variation"?"warn":"";return '<tr><td>'+esc(p.label)+'</td><td class="small">'+esc(ansText(p.a,p.oa)||"–")+'<br>'+esc(ansText(p.b,p.ob)||"–")+'</td><td>'+(file?esc(p.st):'<span class="chip '+c+'">'+esc(p.st)+'</span>')+'</td></tr>'}).join("")+'</table></div></section>';
+  h+='<section class="rep-sec"><h3>Conflicting responses</h3>'+(A.rules.length?'<ul>'+A.rules.map(r=>'<li>'+esc(r.msg)+'</li>').join("")+'</ul>':'<p class="muted m">No conflicting answers found.</p>')+'</section>';
+  const fr=[];Object.entries(A.dims).filter(([d,v])=>DIMS[d]&&v.score!==null&&v.score<50).forEach(([d,v])=>fr.push('<b>'+DIMS[d]+'</b> ('+v.score+'). '+OBS[d][2]));
+  A.notes.filter(n=>n.q[0]!=="S").forEach(n=>fr.push(esc(n.note)+' <span class="muted m">("'+esc(ansText(n.q,n.o))+'")</span>'));
+  h+='<section class="rep-sec"><h3>Potential friction points</h3>'+(fr.length?'<ul>'+fr.map(x=>'<li>'+x+'</li>').join("")+'</ul>':'<p class="muted m">No clear friction points. Use the assessments above as gentle conversation starters.</p>')+'</section>';
+  h+='<section class="rep-sec"><details'+(file?" open":"")+'><summary>All answers</summary><div class="tbl-wrap" style="margin-top:10px"><table><tr><th>#</th><th>Question</th><th>Answer</th><th>Time</th></tr>'+ex.responses.map(r=>'<tr><td class="mono">'+r.n+'</td><td>'+esc(r.question)+'</td><td>'+(r.selectedOptionId?esc(r.selectedOptionText):'<span class="muted m">'+(r.skipped?"Preferred not to answer":"Not answered")+'</span>')+'</td><td class="mono">'+r.secondsOnQuestion+'s</td></tr>').join("")+'</table></div></details></section>';
+  return h;
+}
+function compareHTML(x,y,file){
+  const ma=sel(x),mb=sel(y);let tot=0,n=0;const per={};
+  const items=QS.map(q=>{const a=ma[q.id],b=mb[q.id];let s=null;
+    if(a&&b){const da=key().k[q.id][a][0],db=key().k[q.id][b][0];if(q.id==="S1"){s=1-Math.abs(da.pref-db.pref)/3}else{const ds=[...new Set([...Object.keys(da),...Object.keys(db)])];s=ds.length?1-ds.reduce((t,d)=>t+Math.abs((da[d]||0)-(db[d]||0)),0)/(2*ds.length):1}if(a===b)s=1;tot+=s;n++;(per[q.cat]=per[q.cat]||[]).push(s)}
+    return {q,a,b,s}});
+  const pct=n?Math.round(tot/n*100):null;
+  const na=esc(x.participant.name),nb=esc(y.participant.name);
+  let h='<section class="rep-sec"><p class="eyebrow">Compatibility comparison</p><h2 style="margin-top:6px">'+na+' &amp; '+nb+'</h2><div class="score-hero"><b>'+(pct===null?"–":pct+"%")+'</b><span class="muted">overall alignment across '+n+' shared answers</span></div>';
+  h+='<div class="cats">'+Object.entries(DATA.cats).map(([c,l])=>{const v=per[c];return '<div><span>'+l+'</span><b>'+(v?Math.round(v.reduce((a,b)=>a+b,0)/v.length*100)+"%":"–")+'</b></div>'}).join("")+'</div><p class="disclaimer note">Alignment shows how similar the answers are, not who is right. Differences are things to talk about.</p></section><section class="rep-sec"><h3>Answer by answer</h3>';
+  items.forEach(({q,a,b,s})=>{const lab=s===null?"Not comparable":s>=0.85?"Aligned":s>=0.5?"Close":"Talk about this";const c=s===null?"":s>=0.85?"ok":s>=0.5?"acc":"warn";
+    h+='<div class="cmp-item"><div class="row" style="justify-content:space-between"><span class="small muted">'+esc(DATA.cats[q.cat])+'</span>'+(file?'<b>'+lab+'</b>':'<span class="chip '+c+'">'+lab+'</span>')+'</div><p><b>'+esc(q.text)+'</b></p><div class="cmp-q two"><div class="card"><span class="muted small">'+na+'</span><br>'+esc(ansText(q.id,a)||"–")+'</div><div class="card"><span class="muted small">'+nb+'</span><br>'+esc(ansText(q.id,b)||"–")+'</div></div></div>'});
+  return h+'</section>';
+}
+function docShell(title,body){return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title)+'</title><style>body{font:15px/1.6 -apple-system,"Segoe UI",Roboto,sans-serif;color:#2a1b24;background:#fdf8fa;margin:0}main{max-width:820px;margin:0 auto;padding:32px 18px}h1{font:400 30px/1.2 Georgia,serif;margin:0 0 4px}h2{font:400 24px/1.25 Georgia,serif;margin:0}h3{font:400 20px/1.3 Georgia,serif;margin:0 0 8px}.rep-sec{border-top:1px solid #ecdbe2;padding:18px 0}.m,.muted{color:#7a5d6a}.small{font-size:13px}.mono{font-family:ui-monospace,Menlo,monospace}table{border-collapse:collapse;width:100%;font-size:14px}td,th{border-bottom:1px solid #f0e2e8;padding:8px;text-align:left;vertical-align:top}.dim{margin:12px 0}.bar{height:8px;background:#f3e4ea;border-radius:5px;overflow:hidden;margin:4px 0}.bar span{display:block;height:100%}.note{border:1px dashed #d9bccb;padding:10px 12px;border-radius:8px;font-size:13px}.eyebrow{font:12px ui-monospace,monospace;letter-spacing:.1em;text-transform:uppercase;color:#c14a75}.two,.cats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.card,.cats div{border:1px solid #ecdbe2;border-radius:8px;padding:10px;background:#fff}.score-hero b{font:400 42px Georgia,serif;color:#c14a75}.cmp-item{border-top:1px solid #f0e2e8;padding:10px 0}.row{display:flex;justify-content:space-between;gap:8px}</style></head><body><main><h1>Relationship Rapid Fire</h1>'+body+'</main></body></html>'}
+
+/* ---------- admin ---------- */
+let PRIV=null,SUBS=new Map(),cloud="off";
+async function openVault(pass){const v=ADMIN_VAULT;const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pass),"PBKDF2",false,["deriveKey"]);const k=await crypto.subtle.deriveKey({name:"PBKDF2",salt:ub64(v.salt),iterations:v.iter,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["decrypt"]);const pk8=await crypto.subtle.decrypt({name:"AES-GCM",iv:ub64(v.iv)},k,ub64(v.ct));return crypto.subtle.importKey("pkcs8",pk8,{name:"RSA-OAEP",hash:"SHA-256"},false,["decrypt"])}
+function addSub(ex,src){if(ex&&ex.assessmentId&&ex.schema===SCHEMA){const o=SUBS.get(ex.assessmentId);SUBS.set(ex.assessmentId,{ex,src:o&&o.src==="Cloud"?"Cloud":src})}}
+async function loadCloud(){cloud="loading";renderCloud();
+  try{const r=await fetch(dbUrl(DB_PATH),{cache:"no-store"});if(r.status===401||r.status===403)cloud="denied";else{const all=(await r.json())||{};for(const rec of Object.values(all)){try{addSub(await decryptWith(PRIV,rec),"Cloud")}catch(e){}}cloud="ok"}}catch(e){cloud="error"}
+  renderCloud();renderList()}
+function renderCloud(){const m={off:["",""],loading:["warn","Loading…"],ok:["ok","Live from all devices"],denied:["crit","Firebase refused access. Check database rules."],error:["crit","Couldn't reach Firebase. Press Refresh."]}[cloud];$("#adm-cloud").innerHTML='<span class="dot '+m[0]+'"></span><span class="muted">'+m[1]+'</span>'}
+function renderList(){
+  const q=($("#adm-q").value||"").trim().toLowerCase();
+  const all=[...SUBS.values()].sort((a,b)=>String(b.ex.completedAt).localeCompare(String(a.ex.completedAt)));
+  const items=all.filter(({ex})=>!q||ex.participant.name.toLowerCase().includes(q)||ex.assessmentId.toLowerCase().includes(q));
+  $("#adm-count").textContent=SUBS.size+" submission"+(SUBS.size===1?"":"s");
+  const box=$("#adm-subs");
+  if(!items.length){box.innerHTML='<div class="empty">'+(SUBS.size?"No matches.":"No submissions yet. They'll appear here as soon as someone finishes.")+'</div>'}
+  else{box.innerHTML="";items.forEach(({ex,src})=>{let fl=0;try{const A=analyse(ex);fl=A.rules.length+A.notes.length}catch(e){}const nm=ex.participant.name||"Participant";const b=document.createElement("button");b.className="subrow";
+    b.innerHTML='<span class="av">'+esc(nm.trim().charAt(0).toUpperCase())+'</span><span style="min-width:0"><span class="nm" style="display:block">'+esc(nm)+'</span><span class="meta">'+esc(new Date(ex.completedAt).toLocaleString(undefined,{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}))+'</span></span><span class="chips"><span class="chip">'+ex.totals.answered+'/'+ex.totals.questions+'</span><span class="chip">'+fmtDur(ex.timeTakenSeconds)+'</span>'+(fl?'<span class="chip warn">'+fl+' to discuss</span>':'<span class="chip ok">no flags</span>')+'<span class="chip acc">'+esc(src)+'</span></span>';
+    b.onclick=()=>openReport(ex);box.appendChild(b)})}
+  const cb=$("#cmp-box");cb.hidden=all.length<2;
+  if(all.length>=2){const opts=all.map(({ex},i)=>'<option value="'+esc(ex.assessmentId)+'">'+esc(ex.participant.name)+' · '+esc(new Date(ex.completedAt).toLocaleDateString(undefined,{day:"numeric",month:"short"}))+'</option>').join("");const a=$("#cmp-a"),b=$("#cmp-b"),va=a.value,vb=b.value;a.innerHTML=opts;b.innerHTML=opts;a.value=va||all[0].ex.assessmentId;b.value=vb||all[1].ex.assessmentId}
+}
+function reportShell(inner,title,file){const box=$("#adm-report");box.innerHTML='<div class="row" style="justify-content:space-between;margin-bottom:6px"><button id="adm-back" class="btn sm">← Back</button><div class="row">'+file.map((f,i)=>'<button class="btn sm" data-dl="'+i+'">'+f[0]+'</button>').join("")+'</div></div>'+inner;box.hidden=false;$("#adm-list").hidden=true;window.scrollTo(0,0);$("#adm-back").onclick=()=>{box.hidden=true;$("#adm-list").hidden=false};box.querySelectorAll("[data-dl]").forEach(b=>b.onclick=()=>{const f=file[+b.dataset.dl];download(f[1],f[2](),f[3])})}
+function openReport(ex){let A;try{A=analyse(ex)}catch(e){$("#adm-load-err").textContent=e.message;return}
+  reportShell(reportHTML(ex,A,false),ex.participant.name,[["JSON",ex.assessmentId+".json",()=>JSON.stringify(ex,null,2),"application/json"],["HTML report",ex.assessmentId+"-report.html",()=>docShell(ex.participant.name+" report",reportHTML(ex,A,true)),"text/html"]])}
+$("#cmp-go").onclick=()=>{const x=SUBS.get($("#cmp-a").value),y=SUBS.get($("#cmp-b").value);if(!x||!y||x===y){$("#adm-load-err").textContent="Pick two different people.";return}$("#adm-load-err").textContent="";
+  reportShell(compareHTML(x.ex,y.ex,false),"Compare",[["HTML report","compatibility-"+x.ex.participant.name+"-"+y.ex.participant.name+".html",()=>docShell("Compatibility",compareHTML(x.ex,y.ex,true)),"text/html"]])};
+function openAdmin(){show("v-admin");clearTimeout(tickT);
+  if(!PRIV){$("#adm-gate").hidden=false;$("#adm-list").hidden=true;$("#adm-report").hidden=true;const k=sget("rrf_admin");if(k)openVault(k).then(p=>{PRIV=p;openAdmin()}).catch(()=>{});else setTimeout(()=>$("#adm-code").focus(),60);return}
+  $("#adm-gate").hidden=true;$("#adm-list").hidden=false;$("#adm-report").hidden=true;SUBS=new Map();(load(HIST)||[]).forEach(ex=>addSub(ex,"This phone"));renderList();loadCloud()}
+async function unlock(){const k=$("#adm-code").value.trim();if(!k)return;const b=$("#adm-unlock");b.disabled=true;b.textContent="Unlocking…";try{PRIV=await openVault(k)}catch(e){PRIV=null}b.disabled=false;b.textContent="Unlock";if(!PRIV){$("#adm-err").textContent="That passcode is not correct.";return}$("#adm-err").textContent="";sset("rrf_admin",k);$("#adm-code").value="";openAdmin()}
+$("#adm-unlock").onclick=unlock;$("#adm-code").addEventListener("keydown",e=>{if(e.key==="Enter")unlock()});
+$("#adm-q").addEventListener("input",renderList);$("#adm-refresh").onclick=()=>{if(PRIV)loadCloud()};
+$("#adm-file").addEventListener("change",e=>{[...e.target.files].forEach(f=>{const r=new FileReader();r.onload=()=>{try{const ex=JSON.parse(r.result);analyse(ex);addSub(ex,"File");renderList();$("#adm-load-err").textContent=""}catch(err){$("#adm-load-err").textContent="That file isn't a Relationship Rapid Fire response."}};r.readAsText(f)});e.target.value=""});
+document.querySelectorAll("[data-go-admin]").forEach(b=>b.onclick=()=>{location.hash="admin"});
+$("#adm-exit").onclick=()=>{location.hash=""};
+
+/* ---------- routing ---------- */
+function route(){if(location.hash==="#admin"){openAdmin();return}if(S&&S.submitted){showDone();return}if(S&&!S.submitted){startTest();return}show("v-intro")}
+window.addEventListener("hashchange",route);initIntro();route();flush();
+})();
+</script>
