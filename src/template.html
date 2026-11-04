@@ -1,0 +1,796 @@
+<title>The Human Decision Project</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Advanced Personality, Responsibility & Life Compatibility Assessment">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single calm column, one decision per screen; a thin instrument bar (clock, progress) above. Dark-only by design. */
+:root{
+  --bg:#0A0F1F; --bg-2:#0E1428; --surface:#131A33; --surface-2:#18203D;
+  --line:#252E52; --line-2:#323C68;
+  --fg:#E8E9F4; --muted:#9CA2C6; --faint:#6C739A;
+  --accent:#B9A7F2; --accent-strong:#9C86EC; --accent-ink:#140F2B; --accent-wash:rgba(185,167,242,.12);
+  --ok:#7FD1AE; --warn:#F2C46D; --crit:#F08A8A;
+  --f-display:"Newsreader",Georgia,"Times New Roman",serif;
+  --f-body:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --r:14px; --r-sm:10px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 var(--f-body);-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(1200px 600px at 85% -10%, rgba(156,134,236,.10), transparent 60%),radial-gradient(900px 500px at -10% 110%, rgba(90,110,200,.08), transparent 60%);background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px}
+.wrap.wide{max-width:980px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(2.1rem,6vw,3.4rem);line-height:1.05}
+h2{font-size:clamp(1.5rem,4vw,2rem);line-height:1.15}
+h3{font-size:1.25rem;line-height:1.25}
+p{margin:0}
+.eyebrow{font:500 .72rem/1.2 var(--f-mono);text-transform:uppercase;letter-spacing:.14em;color:var(--accent)}
+.muted{color:var(--muted)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.stack{display:flex;flex-direction:column;gap:16px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.view{animation:rise .45s ease both}
+@keyframes rise{from{opacity:.0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* buttons */
+.btn{appearance:none;border:1px solid var(--line-2);background:var(--surface);color:var(--fg);padding:12px 20px;border-radius:999px;font-weight:600;font-size:.95rem;cursor:pointer;transition:background .2s,border-color .2s,transform .1s;display:inline-flex;align-items:center;gap:8px;min-height:46px}
+.btn:hover{border-color:var(--accent);background:var(--surface-2)}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{background:#CABBF6}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--fg);background:var(--surface)}
+.btn.danger{border-color:rgba(240,138,138,.5)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.sm{padding:8px 14px;min-height:38px;font-size:.85rem}
+
+/* intro */
+.hero{padding-block:28px 8px;display:flex;flex-direction:column;gap:18px}
+.hero .sub{font-family:var(--f-display);font-style:italic;font-size:1.2rem;color:var(--muted);max-width:34ch}
+.mark{width:54px;height:54px}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.facts div{background:var(--bg-2);padding:14px 16px;min-width:0}
+.facts b{display:block;font:500 1.35rem/1.2 var(--f-mono);color:var(--fg)}
+.facts span{font-size:.8rem;color:var(--muted)}
+.notice{border-left:2px solid var(--accent);padding:4px 0 4px 16px;font-family:var(--f-display);font-size:1.15rem;line-height:1.45}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px}
+.rules{margin:0;padding-left:20px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:.85rem;color:var(--muted);font-weight:500}
+.input{background:var(--bg-2);border:1px solid var(--line-2);border-radius:var(--r-sm);padding:12px 14px;width:100%;min-height:46px}
+.input:focus{border-color:var(--accent);outline:none}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:.92rem;color:var(--muted);cursor:pointer}
+.check input{margin-top:4px;accent-color:var(--accent);width:18px;height:18px;flex:none}
+
+/* test bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:rgba(10,15,31,.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar-in{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.clock{font:500 1.35rem/1 var(--f-mono);font-variant-numeric:tabular-nums;padding:8px 12px;border:1px solid var(--line-2);border-radius:999px;display:flex;align-items:center;gap:8px;transition:color .3s,border-color .3s}
+.clock i{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 2s ease-in-out infinite}
+.clock.warn{color:var(--warn);border-color:rgba(242,196,109,.5)}.clock.warn i{background:var(--warn)}
+.clock.crit{color:var(--crit);border-color:rgba(240,138,138,.6)}.clock.crit i{background:var(--crit);animation-duration:.8s}
+@keyframes pulse{50%{opacity:.3}}
+.prog{flex:1;min-width:140px;display:flex;flex-direction:column;gap:6px}
+.prog-meta{display:flex;justify-content:space-between;font:400 .78rem/1 var(--f-mono);color:var(--muted);gap:8px}
+.track{height:4px;background:var(--line);border-radius:4px;overflow:hidden}
+.track span{display:block;height:100%;background:linear-gradient(90deg,var(--accent-strong),var(--accent));width:0;transition:width .4s ease}
+.toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 82px);z-index:20;max-width:min(560px,calc(100% - 32px));background:var(--surface-2);border:1px solid var(--line-2);border-left:3px solid var(--warn);border-radius:var(--r-sm);padding:12px 16px;box-shadow:0 12px 40px rgba(0,0,0,.45);display:flex;gap:12px;align-items:flex-start;animation:drop .35s ease both}
+.toast.crit{border-left-color:var(--crit)}
+.toast b{font-family:var(--f-mono);font-weight:500}
+@keyframes drop{from{opacity:0;transform:translate(-50%,-10px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* question */
+.q-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:14px}
+.q-num{font:500 .8rem/1 var(--f-mono);color:var(--accent);letter-spacing:.08em}
+.q-text{font-family:var(--f-display);font-size:clamp(1.3rem,3.6vw,1.65rem);line-height:1.38;margin-bottom:8px}
+.q-ask{color:var(--muted);font-size:.92rem;margin-bottom:20px}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{display:flex;gap:14px;align-items:flex-start;text-align:left;width:100%;background:var(--bg-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:14px 16px;cursor:pointer;transition:border-color .2s,background .2s,transform .15s;line-height:1.5}
+.opt:hover{border-color:var(--line-2);background:var(--surface)}
+.opt .k{flex:none;width:28px;height:28px;border-radius:50%;border:1px solid var(--line-2);display:grid;place-items:center;font:500 .8rem/1 var(--f-mono);color:var(--muted);transition:all .2s}
+.opt[aria-checked="true"]{border-color:var(--accent);background:var(--accent-wash)}
+.opt[aria-checked="true"] .k{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.q-card{transition:opacity .22s ease,transform .22s ease}
+.q-card.out{opacity:0;transform:translateX(-10px)}
+.q-card.in{opacity:0;transform:translateX(10px)}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:24px;flex-wrap:wrap}
+.grid-toggle{margin-top:28px;border-top:1px solid var(--line);padding-top:16px}
+.qgrid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin-top:12px}
+.qgrid button{aspect-ratio:1;max-width:100%;border:1px solid var(--line);background:transparent;border-radius:8px;font:500 .78rem/1 var(--f-mono);color:var(--muted);cursor:pointer;padding:0}
+.qgrid button.ans{background:var(--surface-2);color:var(--fg);border-color:var(--line-2)}
+.qgrid button.cur{border-color:var(--accent);color:var(--accent)}
+
+/* review / done */
+.list{display:flex;flex-direction:column;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font:500 .78rem/1.4 var(--f-mono);border:1px solid var(--line-2);color:var(--muted)}
+.chip.ok{color:var(--ok);border-color:rgba(127,209,174,.4)}
+.chip.warn{color:var(--warn);border-color:rgba(242,196,109,.4)}
+.chip.crit{color:var(--crit);border-color:rgba(240,138,138,.4)}
+.confirm{border:1px solid rgba(242,196,109,.45);background:rgba(242,196,109,.06);border-radius:var(--r);padding:18px}
+.id-block{font:500 clamp(1.2rem,4.5vw,1.7rem)/1.2 var(--f-mono);letter-spacing:.04em;word-break:break-all;color:var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.stats div{background:var(--bg-2);padding:14px;min-width:0}
+.stats b{display:block;font:500 1.15rem/1.3 var(--f-mono)}
+.stats span{font-size:.78rem;color:var(--muted)}
+textarea.input{min-height:160px;font:400 .8rem/1.5 var(--f-mono);resize:vertical}
+details summary{cursor:pointer;color:var(--muted);font-size:.9rem}
+.hr{height:1px;background:var(--line);border:0;margin:8px 0}
+.foot{margin-top:40px;font-size:.8rem;color:var(--faint);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.linkish{background:none;border:0;color:var(--faint);text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:0;font-size:.8rem}
+.linkish:hover{color:var(--muted)}
+
+/* admin report */
+.rep-sec{display:flex;flex-direction:column;gap:14px;padding-block:22px;border-top:1px solid var(--line)}
+.rep-sec:first-of-type{border-top:0}
+.dims{display:flex;flex-direction:column;gap:14px}
+.dim{display:grid;grid-template-columns:minmax(0,190px) 1fr 46px;gap:14px;align-items:center}
+.dim .nm{font-weight:600;font-size:.92rem}
+.dim .val{font:500 .9rem/1 var(--f-mono);text-align:right;font-variant-numeric:tabular-nums}
+.meter{position:relative;height:10px;background:var(--bg-2);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.meter span{position:absolute;inset:0 auto 0 0;border-radius:6px}
+.meter::after{content:"";position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--line-2)}
+.obs{grid-column:1/-1;color:var(--muted);font-size:.9rem;margin-top:-6px}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-sm)}
+table{border-collapse:collapse;width:100%;font-size:.88rem;min-width:520px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .72rem/1.2 var(--f-mono);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);background:var(--bg-2)}
+tr:last-child td{border-bottom:0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;min-width:0}
+.card ul{margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+.pat{display:grid;grid-template-columns:minmax(0,170px) 1fr 30px;gap:12px;align-items:center;font-size:.9rem}
+.pat .meter::after{display:none}
+.disclaimer{font-size:.85rem;color:var(--muted);border:1px dashed var(--line-2);border-radius:var(--r-sm);padding:12px 14px}
+
+@media (max-width:620px){
+  .facts{grid-template-columns:1fr 1fr 1fr}
+  .facts b{font-size:1.1rem}
+  .stats{grid-template-columns:1fr 1fr}
+  .two{grid-template-columns:1fr}
+  .dim{grid-template-columns:1fr 46px}
+  .dim .meter{grid-column:1/-1;grid-row:2}
+  .pat{grid-template-columns:minmax(0,1fr) 30px}
+  .pat .meter{grid-column:1/-1;grid-row:2}
+  .qgrid{grid-template-columns:repeat(6,1fr)}
+  .bar-in{gap:10px}
+  .clock{font-size:1.15rem}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+
+<div id="app">
+
+<!-- INTRO -->
+<section id="v-intro" class="view" hidden>
+  <div class="wrap stack" style="gap:28px">
+    <div class="hero">
+      <svg class="mark" viewBox="0 0 54 54" aria-hidden="true"><circle cx="27" cy="27" r="25" fill="none" stroke="var(--line-2)"/><path d="M27 6v21l14 14" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round"/><path d="M27 27 13 41" fill="none" stroke="var(--muted)" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="2 3"/><circle cx="27" cy="27" r="2.4" fill="var(--accent)"/></svg>
+      <p class="eyebrow">Situational judgement assessment</p>
+      <h1>The Human Decision Project</h1>
+      <p class="sub">Advanced Personality, Responsibility &amp; Life Compatibility Assessment</p>
+    </div>
+
+    <div class="facts">
+      <div><b>30</b><span>situations</span></div>
+      <div><b>18:00</b><span>minutes, in total</span></div>
+      <div><b>1</b><span>attempt</span></div>
+    </div>
+
+    <p class="notice">Time is limited. Choose the response that most closely represents what you would genuinely do. Avoid overthinking every situation.</p>
+
+    <div class="panel stack">
+      <h3>Before you begin</h3>
+      <ul class="rules">
+        <li>Each screen shows one real-life situation. Pick the option closest to what you would actually do, not what sounds ideal.</li>
+        <li>Several situations have no perfect answer. Every option has a cost.</li>
+        <li>You can move back and forth until you submit. After final submission, answers are locked.</li>
+        <li>The clock starts when you press Start and keeps running if you close the page. Your progress saves automatically on this device.</li>
+        <li>When time runs out, your answers are submitted automatically.</li>
+      </ul>
+      <hr class="hr">
+      <div class="field">
+        <label for="inp-name">Your name or reference code</label>
+        <input id="inp-name" class="input" autocomplete="off" maxlength="80" placeholder="e.g. Priya Sharma">
+      </div>
+      <label class="check" for="inp-consent"><input type="checkbox" id="inp-consent"> I'll answer on my own and as honestly as I can.</label>
+      <div class="row">
+        <button id="btn-start" class="btn primary" disabled>Start Assessment</button>
+        <span id="intro-hint" class="muted" style="font-size:.85rem"></span>
+      </div>
+    </div>
+
+    <div class="foot"><span>Responses stay on this device until you export them.</span><button class="linkish" data-go-admin>Administrator access</button></div>
+  </div>
+</section>
+
+<!-- TEST -->
+<section id="v-test" hidden>
+  <div class="bar"><div class="bar-in">
+    <div id="clock" class="clock" role="timer" aria-live="off"><i></i><span id="clock-t">18:00</span></div>
+    <div class="prog">
+      <div class="prog-meta"><span id="pm-answered">0 answered</span><span id="pm-left">30 unanswered</span></div>
+      <div class="track"><span id="pm-track"></span></div>
+    </div>
+  </div></div>
+  <div class="wrap">
+    <div id="qcard" class="q-card">
+      <div class="q-head"><span id="q-num" class="q-num">SITUATION 01 / 30</span></div>
+      <p id="q-text" class="q-text"></p>
+      <p class="q-ask">What would you actually do?</p>
+      <div id="q-opts" class="opts" role="radiogroup" aria-labelledby="q-text"></div>
+    </div>
+    <div class="nav">
+      <button id="btn-prev" class="btn">← Previous</button>
+      <div class="row">
+        <button id="btn-review" class="btn ghost">Review &amp; submit</button>
+        <button id="btn-next" class="btn primary">Next →</button>
+      </div>
+    </div>
+    <div class="grid-toggle">
+      <details id="grid-d"><summary>Jump to a situation</summary><div id="qgrid" class="qgrid"></div></details>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEW -->
+<section id="v-review" class="view" hidden>
+  <div class="wrap stack" style="gap:22px">
+    <div class="row" style="justify-content:space-between"><p class="eyebrow">Review</p><div id="clock2" class="clock"><i></i><span id="clock2-t"></span></div></div>
+    <h2>Ready to submit?</h2>
+    <p id="rv-summary" class="muted"></p>
+    <div id="rv-unans" class="stack" style="gap:10px"></div>
+    <div class="row">
+      <button id="rv-back" class="btn">← Back to situations</button>
+      <button id="rv-submit" class="btn primary">Submit final responses</button>
+    </div>
+    <div id="rv-confirm" class="confirm stack" hidden>
+      <p><b>Submit now?</b> Your answers will be locked and cannot be changed afterwards.</p>
+      <div class="row"><button id="rv-cancel" class="btn">Keep working</button><button id="rv-yes" class="btn primary">Yes, submit</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- DONE -->
+<section id="v-done" class="view" hidden>
+  <div class="wrap stack" style="gap:24px">
+    <p class="eyebrow" id="done-eyebrow">Submitted</p>
+    <h2>Thank you. Your responses are recorded.</h2>
+    <p class="muted">This assessment does not show a result to participants. Download your response file and send it to the person who asked you to take the assessment.</p>
+    <div class="panel stack" style="gap:10px">
+      <span class="muted" style="font-size:.85rem">Assessment ID</span>
+      <div id="done-id" class="id-block"></div>
+    </div>
+    <div id="ix-offer" class="panel stack" hidden>
+      <p class="eyebrow">Optional · adults 18+ · untimed</p>
+      <h3>Intimacy &amp; sexual compatibility</h3>
+      <p class="muted" style="font-size:.92rem">8 short questions about expectations, communication and boundaries around physical intimacy in a long-term relationship. Nothing explicit. It is entirely your choice, and skipping it has no effect on anything else. Do this part only if you are comfortable sharing these answers with the assessor.</p>
+      <label class="check" for="ix-adult"><input type="checkbox" id="ix-adult"> I am 18 or older.</label>
+      <label class="check" for="ix-consent"><input type="checkbox" id="ix-consent"> I choose to answer this section and understand it will be included in my response file.</label>
+      <div class="row"><button id="ix-start" class="btn primary" disabled>Begin optional section</button><button id="ix-skip" class="btn ghost">Skip this section</button></div>
+    </div>
+    <p id="ix-status" class="muted" style="font-size:.9rem" hidden></p>
+    <div class="stats">
+      <div><b id="ds-ans"></b><span>answered</span></div>
+      <div><b id="ds-un"></b><span>unanswered</span></div>
+      <div><b id="ds-time"></b><span>time taken</span></div>
+      <div><b id="ds-at"></b><span>completed</span></div>
+    </div>
+    <div class="row">
+      <button id="btn-dl-json" class="btn primary">Download response file (.json)</button>
+      <button id="btn-dl-rep" class="btn">Download readable report</button>
+      <button id="btn-copy" class="btn ghost">Copy response data</button>
+    </div>
+    <p id="dl-msg" class="muted" style="font-size:.88rem" aria-live="polite"></p>
+    <details><summary>Show raw response data</summary><textarea id="raw-json" class="input" readonly style="margin-top:10px"></textarea></details>
+    <div id="admin-entry" class="panel row" style="justify-content:space-between" hidden>
+      <div><b>Administrator analysis</b><p class="muted" style="font-size:.88rem">For the assessor only. Requires the administrator passcode.</p></div>
+      <button class="btn" data-go-admin>Open analysis →</button>
+    </div>
+    <div class="foot"><span>Responses are locked.</span><button id="btn-new" class="linkish">Start a new assessment on this device</button></div>
+    <div id="new-confirm" class="confirm stack" hidden>
+      <p>This archives the current submission on this device and starts a fresh assessment with a new ID. Make sure the response file has been saved.</p>
+      <div class="row"><button id="new-cancel" class="btn">Cancel</button><button id="new-yes" class="btn danger">Start new assessment</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- INTIMACY MODULE -->
+<section id="v-ix" hidden>
+  <div class="bar"><div class="bar-in">
+    <span class="chip">Optional · untimed</span>
+    <div class="prog">
+      <div class="prog-meta"><span id="ix-pm-a">0 answered</span><span>Intimacy &amp; compatibility</span></div>
+      <div class="track"><span id="ix-pm-t"></span></div>
+    </div>
+  </div></div>
+  <div class="wrap">
+    <div id="ix-card" class="q-card">
+      <div class="q-head"><span id="ix-num" class="q-num"></span></div>
+      <p id="ix-text" class="q-text"></p>
+      <p class="q-ask">Choose the answer that fits you best.</p>
+      <div id="ix-opts" class="opts" role="radiogroup" aria-labelledby="ix-text"></div>
+    </div>
+    <div class="nav">
+      <button id="ix-prev" class="btn">← Previous</button>
+      <button id="ix-next" class="btn primary">Next →</button>
+    </div>
+    <div id="ix-confirm" class="confirm stack" style="margin-top:20px" hidden>
+      <p id="ix-confirm-t"><b>Submit this section?</b> Answers will be locked.</p>
+      <div class="row"><button id="ix-cancel" class="btn">Keep working</button><button id="ix-yes" class="btn primary">Submit section</button></div>
+    </div>
+    <div class="foot"><button id="ix-leave" class="linkish">Stop and skip this section</button></div>
+  </div>
+</section>
+
+<!-- ADMIN -->
+<section id="v-admin" class="view" hidden>
+  <div class="wrap wide stack" style="gap:22px">
+    <div class="row" style="justify-content:space-between"><p class="eyebrow">Administrator</p><button id="adm-exit" class="btn ghost sm">← Exit</button></div>
+    <div id="adm-gate" class="panel stack" style="max-width:460px">
+      <h3>Administrator passcode</h3>
+      <p class="muted" style="font-size:.9rem">The analysis is for the assessor only. Participants should not see it.</p>
+      <div class="field"><label for="adm-code">Passcode</label><input id="adm-code" type="password" class="input" autocomplete="off"></div>
+      <div class="row"><button id="adm-unlock" class="btn primary">Unlock</button><span id="adm-err" class="muted" style="font-size:.85rem;color:var(--crit)"></span></div>
+    </div>
+    <div id="adm-load" class="stack" hidden>
+      <h2>Load a response file</h2>
+      <div class="two">
+        <div class="card stack">
+          <h3>From a file</h3>
+          <p class="muted" style="font-size:.9rem">Choose a .json response file exported by a participant.</p>
+          <input id="adm-file" type="file" accept=".json,application/json" class="input">
+          <div id="adm-local" class="stack" hidden><hr class="hr"><button id="adm-use-local" class="btn">Use the latest submission on this device</button></div>
+        </div>
+        <div class="card stack">
+          <h3>Paste the data</h3>
+          <textarea id="adm-paste" class="input" placeholder='{"schema":"human-decision-project/1", …}'></textarea>
+          <button id="adm-parse" class="btn">Analyse pasted data</button>
+        </div>
+      </div>
+      <p id="adm-load-err" style="color:var(--crit);font-size:.9rem" aria-live="polite"></p>
+    </div>
+    <div id="adm-report" hidden></div>
+  </div>
+</section>
+
+</div>
+<div id="toast-root" aria-live="assertive"></div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- data ---------- */
+const QUESTIONS = __QUESTIONS__;
+const IXQ = __IXQ__;
+const KEYPACK = "__KEY__";
+const TIME_LIMIT = 18*60; // seconds
+const WARNINGS = [[600,"10 minutes remaining.","warn"],[300,"5 minutes remaining.","warn"],[120,"2 minutes remaining. Make your remaining choices.","crit"],[30,"30 seconds left. Answers submit automatically when time ends.","crit"]];
+// Administrator passcode hash. Default passcode: HDP-ADMIN-2026
+// To change it: open the browser console on this page and run hdpHash("your new code"), then paste the result here.
+const ADMIN_HASH = "__ADMIN_HASH__";
+const STORE = "hdp_state_v1", HIST = "hdp_history_v1";
+const SCHEMA = "human-decision-project/1";
+
+const byId = Object.fromEntries(QUESTIONS.map(q=>[q.id,q]));
+const $ = s=>document.querySelector(s);
+const esc = s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad = n=>String(n).padStart(2,"0");
+const fmtClock = s=>{s=Math.max(0,Math.ceil(s));return pad(Math.floor(s/60))+":"+pad(s%60)};
+const fmtDur = s=>{s=Math.round(s);const m=Math.floor(s/60);return m+"m "+pad(s%60)+"s"};
+function fnv(str){let h=0x811c9dc5;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0}return h.toString(16).padStart(8,"0")}
+window.hdpHash = s=>fnv("hdp::"+s)+fnv(s+"::hdp");
+
+let KEY=null;
+function key(){ if(!KEY){ const b=atob(KEYPACK); const u=new Uint8Array(b.length); for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i); KEY=JSON.parse(new TextDecoder().decode(u)); } return KEY; }
+
+/* ---------- storage ---------- */
+function load(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null}catch(e){return null}}
+function persist(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+function drop(k){try{localStorage.removeItem(k)}catch(e){}}
+
+let S = load(STORE);
+let tickTimer=null, lastTick=0, adminUnlocked=false, lastExport=null;
+
+/* ---------- helpers ---------- */
+function rnd(n){const a=new Uint32Array(n);(window.crypto||{}).getRandomValues?crypto.getRandomValues(a):a.forEach((_,i)=>a[i]=Math.random()*2**32);return a}
+function shuffle(arr){const a=arr.slice();const r=rnd(a.length);for(let i=a.length-1;i>0;i--){const j=r[i]%(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
+function newId(){const d=new Date();const ds=d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate());const r=rnd(2);const s=(r[0].toString(36)+r[1].toString(36)).toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6).padEnd(6,"X");return "HDP-"+ds+"-"+s}
+function show(id){document.querySelectorAll("#app > section").forEach(s=>s.hidden=s.id!==id);window.scrollTo(0,0)}
+function remaining(){return S?(S.endAt-Date.now())/1000:TIME_LIMIT}
+function answeredCount(){return S?Object.keys(S.answers).length:0}
+
+/* ---------- toast ---------- */
+function toast(msg,level,stay){const root=$("#toast-root");root.innerHTML="";const t=document.createElement("div");t.className="toast"+(level==="crit"?" crit":"");t.setAttribute("role","alert");t.innerHTML='<b>'+esc(fmtClock(remaining()))+'</b><span>'+esc(msg)+'</span>';root.appendChild(t);if(!stay)setTimeout(()=>{if(t.parentNode)t.remove()},6500)}
+
+/* ---------- intro ---------- */
+function initIntro(){
+  const name=$("#inp-name"), consent=$("#inp-consent"), start=$("#btn-start"), hint=$("#intro-hint");
+  const resuming = S && !S.submitted;
+  if(resuming){
+    name.value=S.name; name.disabled=true; consent.checked=true; consent.disabled=true;
+    start.textContent="Resume assessment"; start.disabled=false;
+    hint.textContent = remaining()>0 ? "The clock kept running: "+fmtClock(remaining())+" left." : "Time has ended. Your answers will be submitted.";
+  }
+  const sync=()=>{ if(!resuming) start.disabled=!(name.value.trim().length>=2 && consent.checked) };
+  name.addEventListener("input",sync); consent.addEventListener("change",sync); sync();
+  start.addEventListener("click",()=>{
+    if(!(S && !S.submitted)){
+      const now=Date.now();
+      S={v:1,id:newId(),name:name.value.trim(),startedAt:now,endAt:now+TIME_LIMIT*1000,
+        order:QUESTIONS.map(q=>q.id),
+        optOrder:Object.fromEntries(QUESTIONS.map(q=>[q.id,shuffle(q.opts.map(o=>o.id))])),
+        answers:{},changes:{},qtime:{},visits:{},cur:0,warned:{},submitted:false,downloaded:false};
+      // answers to warnings already passed are irrelevant on a fresh start
+      persist(STORE,S);
+    }
+    startTest();
+  });
+}
+
+/* ---------- test ---------- */
+function startTest(){
+  if(remaining()<=0){submit(true);return}
+  show("v-test"); renderGrid(); renderQ(false); updateProgress();
+  lastTick=Date.now(); clearInterval(tickTimer); tickTimer=setInterval(tick,250); tick();
+}
+function tick(){
+  if(!S||S.submitted){clearInterval(tickTimer);return}
+  const now=Date.now(), rem=remaining();
+  if(!$("#v-test").hidden){const qid=S.order[S.cur];S.qtime[qid]=(S.qtime[qid]||0)+(now-lastTick)/1000}
+  lastTick=now;
+  const t=fmtClock(rem);
+  [["#clock","#clock-t"],["#clock2","#clock2-t"]].forEach(([c,tt])=>{$(tt).textContent=t;const el=$(c);el.classList.toggle("warn",rem<=300&&rem>120);el.classList.toggle("crit",rem<=120)});
+  for(const [sec,msg,lvl] of WARNINGS){ if(rem<=sec && !S.warned[sec]){ S.warned[sec]=true; // skip stale warnings when resuming far past them
+      if(rem>sec-20||sec===30) toast(msg,lvl,sec===30); persist(STORE,S);} }
+  if(Math.floor(now/1000)%5===0) persist(STORE,S);
+  if(rem<=0) submit(true);
+}
+function updateProgress(){
+  const a=answeredCount(), n=QUESTIONS.length;
+  $("#pm-answered").textContent=a+" answered";
+  $("#pm-left").textContent=(n-a)+" unanswered";
+  $("#pm-track").style.width=(a/n*100)+"%";
+}
+function renderGrid(){
+  const g=$("#qgrid"); g.innerHTML="";
+  S.order.forEach((qid,i)=>{const b=document.createElement("button");b.textContent=i+1;b.className=(S.answers[qid]?"ans ":"")+(i===S.cur?"cur":"");b.setAttribute("aria-label","Situation "+(i+1)+(S.answers[qid]?", answered":", unanswered"));b.onclick=()=>go(i);g.appendChild(b)});
+}
+const LETTERS="ABCDEF";
+function renderQ(animate){
+  const card=$("#qcard"); const qid=S.order[S.cur], q=byId[qid];
+  const paint=()=>{
+    $("#q-num").textContent="SITUATION "+pad(S.cur+1)+" / "+QUESTIONS.length;
+    $("#q-text").textContent=q.text;
+    const box=$("#q-opts"); box.innerHTML="";
+    S.optOrder[qid].forEach((oid,i)=>{
+      const o=q.opts.find(x=>x.id===oid);
+      const b=document.createElement("button");
+      b.className="opt"; b.type="button"; b.setAttribute("role","radio"); b.dataset.oid=oid;
+      b.setAttribute("aria-checked",S.answers[qid]===oid?"true":"false");
+      b.innerHTML='<span class="k">'+LETTERS[i]+'</span><span>'+esc(o.text)+'</span>';
+      b.onclick=()=>choose(oid);
+      box.appendChild(b);
+    });
+    $("#btn-prev").disabled=S.cur===0;
+    $("#btn-next").textContent=S.cur===QUESTIONS.length-1?"Review →":"Next →";
+    S.visits[qid]=(S.visits[qid]||0)+1;
+  };
+  if(animate && !matchMedia("(prefers-reduced-motion: reduce)").matches){
+    card.classList.add("out");
+    setTimeout(()=>{paint();card.classList.remove("out");card.classList.add("in");requestAnimationFrame(()=>requestAnimationFrame(()=>card.classList.remove("in")))},180);
+  } else paint();
+}
+function choose(oid){
+  if(S.submitted) return;
+  const qid=S.order[S.cur];
+  if(S.answers[qid] && S.answers[qid]!==oid) S.changes[qid]=(S.changes[qid]||0)+1;
+  S.answers[qid]=oid; persist(STORE,S);
+  document.querySelectorAll("#q-opts .opt").forEach(b=>b.setAttribute("aria-checked",b.dataset.oid===oid?"true":"false"));
+  updateProgress(); renderGrid();
+}
+function go(i){ if(i<0||i>=QUESTIONS.length||i===S.cur) return; S.cur=i; persist(STORE,S); renderQ(true); renderGrid(); }
+$("#btn-prev").onclick=()=>go(S.cur-1);
+$("#btn-next").onclick=()=>{ if(S.cur===QUESTIONS.length-1) openReview(); else go(S.cur+1) };
+$("#btn-review").onclick=openReview;
+document.addEventListener("keydown",e=>{
+  if($("#v-test").hidden||e.target.matches("input,textarea")||e.metaKey||e.ctrlKey||e.altKey) return;
+  const n=parseInt(e.key,10);
+  if(n>=1&&n<=6){const o=S.optOrder[S.order[S.cur]][n-1];if(o)choose(o)}
+  else if(e.key==="ArrowRight") $("#btn-next").click();
+  else if(e.key==="ArrowLeft") go(S.cur-1);
+});
+
+/* ---------- review ---------- */
+function openReview(){
+  show("v-review"); $("#rv-confirm").hidden=true;
+  const un=S.order.map((q,i)=>[q,i]).filter(([q])=>!S.answers[q]);
+  $("#rv-summary").textContent=answeredCount()+" of "+QUESTIONS.length+" situations answered."+(un.length?" Unanswered situations are recorded as unanswered.":" Every situation has a response.");
+  const box=$("#rv-unans"); box.innerHTML="";
+  if(un.length){
+    const lab=document.createElement("p");lab.innerHTML='<span class="chip warn">'+un.length+' unanswered</span>';box.appendChild(lab);
+    const row=document.createElement("div");row.className="row";
+    un.forEach(([q,i])=>{const b=document.createElement("button");b.className="btn sm";b.textContent="Situation "+(i+1);b.onclick=()=>{show("v-test");S.cur=i;renderQ(false);renderGrid()};row.appendChild(b)});
+    box.appendChild(row);
+  }
+}
+$("#rv-back").onclick=()=>{show("v-test");renderQ(false);renderGrid()};
+$("#rv-submit").onclick=()=>{$("#rv-confirm").hidden=false;$("#rv-yes").focus()};
+$("#rv-cancel").onclick=()=>{$("#rv-confirm").hidden=true};
+$("#rv-yes").onclick=()=>submit(false);
+
+/* ---------- submit / export ---------- */
+function submit(auto){
+  if(!S||S.submitted) return;
+  const now=Date.now();
+  S.submitted=true; S.submittedAt=Math.min(now,S.endAt+1000); S.submissionType=auto?"time-expired":"manual";
+  persist(STORE,S); clearInterval(tickTimer); $("#toast-root").innerHTML="";
+  showDone();
+}
+function buildExport(st){
+  const taken=Math.min(TIME_LIMIT,(st.submittedAt-st.startedAt)/1000);
+  const responses=st.order.map((qid,i)=>{const q=byId[qid];const sel=st.answers[qid]||null;
+    return {n:i+1,questionId:qid,question:q.text,
+      options:q.opts.map(o=>({optionId:o.id,text:o.text})),
+      presentedOrder:st.optOrder[qid],
+      selectedOptionId:sel,selectedOptionText:sel?q.opts.find(o=>o.id===sel).text:null,
+      answerChanges:st.changes[qid]||0,secondsOnQuestion:Math.round(st.qtime[qid]||0)}});
+  const un=responses.filter(r=>!r.selectedOptionId).map(r=>r.questionId);
+  const ix=st.ix||{status:"not-taken"};
+  let intimacyModule={status:ix.status==="completed"?"completed":"not-taken"};
+  if(ix.status==="completed"){
+    intimacyModule={status:"completed",adultConfirmed:true,consentGiven:true,submittedAt:new Date(ix.submittedAt).toISOString(),
+      responses:IXQ.map((q,i)=>{const sel=ix.answers[q.id]||null;return {n:i+1,questionId:q.id,question:q.text,options:q.opts.map(o=>({optionId:o.id,text:o.text})),presentedOrder:ix.optOrder[q.id],selectedOptionId:sel,selectedOptionText:sel?q.opts.find(o=>o.id===sel).text:null}})};
+  }
+  return {schema:SCHEMA,assessmentId:st.id,participant:{name:st.name},
+    startedAt:new Date(st.startedAt).toISOString(),completedAt:new Date(st.submittedAt).toISOString(),
+    timeLimitSeconds:TIME_LIMIT,timeTakenSeconds:Math.round(taken),submissionType:st.submissionType,
+    totals:{questions:responses.length,answered:responses.length-un.length,unanswered:un.length},
+    unansweredQuestionIds:un,responses,intimacyModule};
+}
+
+/* ---------- optional intimacy module ---------- */
+function ixState(){ if(!S.ix) S.ix={status:"offered",answers:{},optOrder:{},cur:0}; return S.ix }
+function refreshIxOffer(){
+  const ix=S.ix||{status:"offered"}; const offer=$("#ix-offer"), st=$("#ix-status");
+  offer.hidden=!(ix.status==="offered"||ix.status==="in-progress");
+  if(ix.status==="in-progress"){$("#ix-start").textContent="Continue optional section";$("#ix-adult").checked=$("#ix-consent").checked=true}
+  st.hidden=!(ix.status==="completed"||ix.status==="skipped");
+  st.textContent=ix.status==="completed"?"Optional intimacy & compatibility section completed and included in your response file.":"Optional intimacy & compatibility section skipped.";
+  $("#ix-start").disabled=!($("#ix-adult").checked&&$("#ix-consent").checked);
+}
+["#ix-adult","#ix-consent"].forEach(s=>$(s).addEventListener("change",refreshIxOffer));
+$("#ix-skip").onclick=()=>{ixState().status="skipped";S.ix.answers={};persist(STORE,S);refreshIxOffer();showDone()};
+$("#ix-start").onclick=()=>{const ix=ixState();if(ix.status!=="in-progress"){ix.status="in-progress";ix.startedAt=Date.now();IXQ.forEach(q=>ix.optOrder[q.id]=shuffle(q.opts.map(o=>o.id)))}persist(STORE,S);show("v-ix");renderIx()};
+function renderIx(){
+  const ix=S.ix,q=IXQ[ix.cur];
+  $("#ix-num").textContent="INTIMACY "+pad(ix.cur+1)+" / "+IXQ.length;
+  $("#ix-text").textContent=q.text;
+  const box=$("#ix-opts");box.innerHTML="";
+  ix.optOrder[q.id].forEach((oid,i)=>{const o=q.opts.find(x=>x.id===oid);const b=document.createElement("button");b.className="opt";b.type="button";b.setAttribute("role","radio");b.dataset.oid=oid;b.setAttribute("aria-checked",ix.answers[q.id]===oid?"true":"false");b.innerHTML='<span class="k">'+LETTERS[i]+'</span><span>'+esc(o.text)+'</span>';b.onclick=()=>{ix.answers[q.id]=oid;persist(STORE,S);box.querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-checked",x.dataset.oid===oid?"true":"false"));ixProg()};box.appendChild(b)});
+  $("#ix-prev").disabled=ix.cur===0;
+  $("#ix-next").textContent=ix.cur===IXQ.length-1?"Submit section":"Next →";
+  $("#ix-confirm").hidden=true; ixProg();
+}
+function ixProg(){const n=Object.keys(S.ix.answers).length;$("#ix-pm-a").textContent=n+" of "+IXQ.length+" answered";$("#ix-pm-t").style.width=(n/IXQ.length*100)+"%"}
+$("#ix-prev").onclick=()=>{if(S.ix.cur>0){S.ix.cur--;persist(STORE,S);renderIx()}};
+$("#ix-next").onclick=()=>{if(S.ix.cur<IXQ.length-1){S.ix.cur++;persist(STORE,S);renderIx()}else{const left=IXQ.length-Object.keys(S.ix.answers).length;$("#ix-confirm-t").innerHTML="<b>Submit this section?</b> "+(left?left+" question(s) unanswered. ":"")+"Answers will be locked.";$("#ix-confirm").hidden=false}};
+$("#ix-cancel").onclick=()=>{$("#ix-confirm").hidden=true};
+$("#ix-yes").onclick=()=>{S.ix.status="completed";S.ix.submittedAt=Date.now();S.downloaded=false;persist(STORE,S);showDone()};
+$("#ix-leave").onclick=()=>{S.ix.status="skipped";S.ix.answers={};persist(STORE,S);showDone()};
+function showDone(){
+  show("v-done");
+  const ex=buildExport(S); lastExport=ex;
+  $("#done-eyebrow").textContent=S.submissionType==="time-expired"?"Submitted automatically · time ended":"Submitted";
+  $("#done-id").textContent=ex.assessmentId;
+  $("#ds-ans").textContent=ex.totals.answered+" / "+ex.totals.questions;
+  $("#ds-un").textContent=ex.totals.unanswered;
+  $("#ds-time").textContent=fmtDur(ex.timeTakenSeconds);
+  const d=new Date(ex.completedAt); $("#ds-at").textContent=pad(d.getHours())+":"+pad(d.getMinutes())+", "+d.toLocaleDateString(undefined,{day:"numeric",month:"short"});
+  $("#raw-json").value=JSON.stringify(ex,null,2);
+  $("#admin-entry").hidden=!S.downloaded;
+  refreshIxOffer();
+}
+function download(name,text,type){
+  try{const blob=new Blob([text],{type});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);return true}catch(e){return false}
+}
+function markDownloaded(){S.downloaded=true;persist(STORE,S);$("#admin-entry").hidden=false}
+$("#btn-dl-json").onclick=()=>{const ex=buildExport(S);download(ex.assessmentId+".json",JSON.stringify(ex,null,2),"application/json");markDownloaded();$("#dl-msg").textContent="Saved as "+ex.assessmentId+".json. If nothing downloaded, use Copy response data and paste it into a text file."};
+$("#btn-dl-rep").onclick=()=>{const ex=buildExport(S);download(ex.assessmentId+"-responses.html",participantReportHTML(ex),"text/html");$("#dl-msg").textContent="Readable report saved as "+ex.assessmentId+"-responses.html."};
+$("#btn-copy").onclick=async()=>{const txt=$("#raw-json").value;try{await navigator.clipboard.writeText(txt);$("#dl-msg").textContent="Response data copied. Paste it into a file named "+S.id+".json.";markDownloaded()}catch(e){const d=$("#raw-json").closest("details");d.open=true;$("#raw-json").select();$("#dl-msg").textContent="Copy is blocked here. The data is selected below; copy it manually.";markDownloaded()}};
+$("#btn-new").onclick=()=>{$("#new-confirm").hidden=false};
+$("#new-cancel").onclick=()=>{$("#new-confirm").hidden=true};
+$("#new-yes").onclick=()=>{const h=load(HIST)||[];h.unshift(buildExport(S));persist(HIST,h.slice(0,20));drop(STORE);location.hash="";location.reload()};
+
+function docShell(title,body){
+  return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title)+'</title><style>body{font:15px/1.6 -apple-system,"Segoe UI",Roboto,sans-serif;color:#1b1d2e;background:#f7f7fb;margin:0}main{max-width:820px;margin:0 auto;padding:32px 18px}h1{font:400 28px/1.2 Georgia,serif;margin:0 0 4px}h2{font:400 21px/1.3 Georgia,serif;margin:28px 0 10px;border-top:1px solid #dcdcea;padding-top:18px}.m{color:#5b5f7d}.mono{font-family:ui-monospace,Menlo,Consolas,monospace}.q{border:1px solid #e0e0ee;background:#fff;border-radius:10px;padding:14px 16px;margin:10px 0}.q p{margin:4px 0}.sel{color:#4b37b8;font-weight:600}table{border-collapse:collapse;width:100%;font-size:14px}td,th{border-bottom:1px solid #e3e3ef;padding:8px;text-align:left;vertical-align:top}.bar{height:8px;background:#e6e4f4;border-radius:5px;overflow:hidden}.bar span{display:block;height:100%;background:#7a63d8}ul{padding-left:20px}.note{border:1px dashed #b9b9d4;padding:10px 12px;border-radius:8px;font-size:13px}</style></head><body><main>'+body+'</main></body></html>';
+}
+function participantReportHTML(ex){
+  let h='<h1>The Human Decision Project</h1><p class="m">Response report</p>';
+  h+='<table><tr><th>Assessment ID</th><td class="mono">'+esc(ex.assessmentId)+'</td></tr><tr><th>Participant</th><td>'+esc(ex.participant.name)+'</td></tr><tr><th>Started</th><td>'+esc(new Date(ex.startedAt).toLocaleString())+'</td></tr><tr><th>Completed</th><td>'+esc(new Date(ex.completedAt).toLocaleString())+'</td></tr><tr><th>Time taken</th><td>'+fmtDur(ex.timeTakenSeconds)+' of 18m 00s</td></tr><tr><th>Submission</th><td>'+(ex.submissionType==="manual"?"Submitted by participant":"Submitted automatically when time ended")+'</td></tr><tr><th>Answered</th><td>'+ex.totals.answered+' of '+ex.totals.questions+(ex.totals.unanswered?' (unanswered: '+ex.unansweredQuestionIds.join(", ")+')':'')+'</td></tr></table>';
+  h+='<h2>Responses</h2>';
+  ex.responses.forEach(r=>{h+='<div class="q"><p class="m mono">'+pad(r.n)+' · '+esc(r.questionId)+'</p><p>'+esc(r.question)+'</p><p class="sel">'+(r.selectedOptionId?'<span class="mono">'+esc(r.selectedOptionId)+'</span> · '+esc(r.selectedOptionText):'<span class="m">Not answered</span>')+'</p></div>'});
+  if(ex.intimacyModule&&ex.intimacyModule.status==="completed"){h+='<h2>Optional: intimacy &amp; sexual compatibility</h2>';ex.intimacyModule.responses.forEach(r=>{h+='<div class="q"><p class="m mono">'+esc(r.questionId)+'</p><p>'+esc(r.question)+'</p><p class="sel">'+(r.selectedOptionId?'<span class="mono">'+esc(r.selectedOptionId)+'</span> · '+esc(r.selectedOptionText):'<span class="m">Not answered</span>')+'</p></div>'})}
+  return docShell(ex.assessmentId+" responses",h);
+}
+
+/* ---------- analysis (administrator) ---------- */
+const DIMS={fin:"Financial responsibility",emo:"Emotional maturity",ind:"Independent thinking",dec:"Decision-making",cri:"Crisis management",amb:"Career ambition",ada:"Adaptability",com:"Commitment",acc:"Accountability",pra:"Practical intelligence"};
+const OBS={
+ fin:["Tends to protect financial stability: clears costly debt, sets limits and plans before spending.","Balances money with relationships and goals; some choices accept financial cost for other priorities.","Several choices accept debt, loose lending or delayed money decisions."],
+ emo:["Usually pauses, listens and raises issues privately before reacting.","Handles most interpersonal tension calmly, with some direct or avoidant reactions.","Often reacts sharply or avoids emotional conversations."],
+ ind:["Forms own view and acts on it, while still communicating with others.","Mixes own judgement with deference depending on the stakes.","Frequently hands major decisions to family, partners or groups."],
+ dec:["Defines criteria, sets deadlines and decides rather than drifting.","Decides reasonably, occasionally deferring or splitting the difference.","Often postpones, splits evenly or lets circumstances decide."],
+ cri:["Prioritises safety and recovery steps quickly under pressure.","Responds adequately to emergencies, with some less effective first moves.","First reactions in emergencies are often risky or slow."],
+ amb:["Willing to invest time and comfort for long-term career growth.","Pursues growth when the cost is manageable.","Tends to choose comfort or stability over growth opportunities."],
+ ada:["Finds workable alternatives when plans break.","Adapts in some situations, holds to plans in others.","Prefers keeping things as they are when circumstances change."],
+ com:["Keeps promises and works on problems rather than exiting.","Usually honours commitments, but weighs them against other gains.","Leans towards stepping away when commitments become costly."],
+ acc:["Owns mistakes and communicates openly about them.","Takes responsibility in most cases, less so in personal conflict.","Several choices avoid owning a mistake or its consequences."],
+ pra:["Uses information, comparisons and direct fixes to solve everyday problems.","Practical in most situations, sometimes reactive.","Approaches everyday problems reactively or without weighing options."]
+};
+const DISCUSS={
+ fin:"Ask how they would handle a month where expenses exceed income, and how they decide when to lend money.",
+ emo:"Ask about the last argument they had and how it was resolved.",
+ ind:"Ask about a major decision they made against others' advice, and one where they deferred.",
+ dec:"Ask how they make decisions when two options seem equally good.",
+ cri:"Walk through a real emergency they faced and what they did first.",
+ amb:"Ask where they want to be in five years and what they are willing to give up for it.",
+ ada:"Ask about a time plans fell apart and what they did next.",
+ com:"Ask about a commitment they kept when it became inconvenient, and one they left.",
+ acc:"Ask about a recent mistake that affected someone else and how they handled it.",
+ pra:"Give a household or work problem and ask how they would solve it step by step."
+};
+const PATTERNS={P:["Deliberate planner","Gathers facts, sets conditions or deadlines, then acts."],S:["Self-reliant","Solves things personally and directly, without involving others."],C:["Consultative","Brings in other people, information or shared decisions."],A:["Accommodating","Puts others' needs or harmony first, sometimes at own cost."],V:["Cautious / deferring","Waits, withdraws or keeps the status quo."],B:["Bold / direct","Acts quickly, confronts, or takes the riskier path."]};
+
+function analyse(ex){
+  const K=key(), map=K.k, sel={};
+  if(!ex||ex.schema!==SCHEMA||!Array.isArray(ex.responses)) throw new Error("This doesn't look like a Human Decision Project response file.");
+  let unknown=0;
+  ex.responses.forEach(r=>{ if(r.selectedOptionId){ if(map[r.questionId]&&map[r.questionId][r.selectedOptionId]) sel[r.questionId]=r.selectedOptionId; else unknown++; } });
+  // per-question normalised value for a dimension (0..1), or null if q doesn't measure it
+  const norm=(qid,dim)=>{const opts=map[qid];if(!opts)return null;const vals=Object.values(opts).map(o=>o[0][dim]||0);if(!Object.values(opts).some(o=>dim in o[0]))return null;const mn=Math.min(...vals),mx=Math.max(...vals);if(mx===mn)return null;if(!sel[qid])return undefined;return ((map[qid][sel[qid]][0][dim]||0)-mn)/(mx-mn)};
+  const dims={};
+  for(const d in DIMS){let sum=0,n=0,cov=0;for(const qid in map){const v=norm(qid,d);if(v===null)continue;cov++;if(v===undefined)continue;sum+=v;n++}dims[d]={score:n?Math.round(sum/n*100):null,n,cov}}
+  const pats={P:0,S:0,C:0,A:0,V:0,B:0}; Object.entries(sel).forEach(([q,o])=>pats[map[q][o][1]]++);
+  const pairs=K.pairs.map(([a,b,d,label])=>{const va=norm(a,d),vb=norm(b,d);let status="Incomplete",diff=null;if(typeof va==="number"&&typeof vb==="number"){diff=Math.abs(va-vb);status=diff>=0.6?"Inconsistent":diff>=0.34?"Some variation":"Consistent"}return {a,b,d,label,status,diff,oa:sel[a]||null,ob:sel[b]||null}});
+  const rules=K.rules.filter(([xs,ys])=>xs.some(x=>Object.values(sel).includes(x))&&ys.some(y=>Object.values(sel).includes(y))).map(r=>({msg:r[2],hit:[...r[0],...r[1]].filter(x=>Object.values(sel).includes(x))}));
+  const notes=Object.entries(sel).filter(([q,o])=>map[q][o][2]).map(([q,o])=>({q,o,note:map[q][o][2]}));
+  const fast=ex.responses.filter(r=>r.selectedOptionId&&r.secondsOnQuestion>0&&r.secondsOnQuestion<6).map(r=>r.questionId);
+  const changed=ex.responses.filter(r=>r.answerChanges>=2).map(r=>r.questionId+" ("+r.answerChanges+"×)");
+  const ranked=Object.entries(dims).filter(([,v])=>v.score!==null).sort((x,y)=>y[1].score-x[1].score);
+  return {dims,pats,pairs,rules,notes,fast,changed,ranked,unknown,answered:Object.keys(sel).length};
+}
+function band(s){return s===null?null:s>=67?0:s>=45?1:2}
+function bandLabel(s){return ["Strong","Moderate","Discuss"][band(s)]}
+function bandColor(s){return ["var(--ok)","var(--accent)","var(--warn)"][band(s)]}
+
+function adminReportInner(ex,A,forFile){
+  const c=forFile?{ok:"#2e8a63",ac:"#6a52cf",warn:"#b07a14"}:null;
+  const col=s=>forFile?[c.ok,c.ac,c.warn][band(s)]:bandColor(s);
+  let h='';
+  h+='<section class="rep-sec"><p class="eyebrow">Administrator report · confidential</p><h2 style="margin-top:6px">'+esc(ex.participant&&ex.participant.name||"Participant")+'</h2>';
+  h+='<div class="tbl-wrap"><table><tr><th>Assessment ID</th><th>Answered</th><th>Time taken</th><th>Completed</th><th>Submission</th></tr><tr><td class="mono">'+esc(ex.assessmentId)+'</td><td class="mono">'+ex.totals.answered+' / '+ex.totals.questions+'</td><td class="mono">'+fmtDur(ex.timeTakenSeconds)+'</td><td>'+esc(new Date(ex.completedAt).toLocaleString())+'</td><td>'+(ex.submissionType==="manual"?"Manual":"Time expired")+'</td></tr></table></div>';
+  if(ex.unansweredQuestionIds.length) h+='<p class="muted m">Unanswered: <span class="mono">'+ex.unansweredQuestionIds.map(esc).join(", ")+'</span></p>';
+  if(A.unknown) h+='<p style="color:var(--crit)">'+A.unknown+' response(s) carried option IDs this version does not recognise and were skipped.</p>';
+  h+='<p class="disclaimer note">These observations describe choices made in hypothetical situations under time pressure. They are prompts for conversation, not a diagnosis, a personality verdict or a measure of honesty. Read them alongside what you know of the person.</p></section>';
+
+  // categories
+  h+='<section class="rep-sec"><h3>Category-wise observations</h3><p class="muted m" style="font-size:.88rem">0–100 relative to the options available in each situation. 50 is the midpoint. Bands: 67+ strong, 45–66 moderate, below 45 worth discussing.</p><div class="dims">';
+  for(const d in DIMS){const v=A.dims[d];const s=v.score;
+    h+='<div class="dim"><span class="nm">'+DIMS[d]+'</span>'+(forFile?'<div class="bar"><span style="width:'+(s||0)+'%;background:'+col(s)+'"></span></div>':'<div class="meter"><span style="width:'+(s||0)+'%;background:'+(s===null?"var(--line)":col(s))+'"></span></div>')+'<span class="val mono">'+(s===null?"–":s)+'</span>';
+    h+='<p class="obs m">'+(s===null?"No responses on this dimension.":'<b style="color:'+col(s)+'">'+bandLabel(s)+'.</b> '+OBS[d][band(s)])+' <span class="mono" style="opacity:.7">('+v.n+' of '+v.cov+' situations)</span></p></div>';}
+  h+='</div></section>';
+
+  // patterns
+  const tot=Object.values(A.pats).reduce((a,b)=>a+b,0)||1;
+  const pr=Object.entries(A.pats).sort((a,b)=>b[1]-a[1]);
+  h+='<section class="rep-sec"><h3>Decision-making patterns</h3><div class="dims">';
+  pr.forEach(([k,n])=>{h+='<div class="pat"><span><b>'+PATTERNS[k][0]+'</b><br><span class="muted m" style="font-size:.82rem">'+PATTERNS[k][1]+'</span></span>'+(forFile?'<div class="bar"><span style="width:'+(n/tot*100)+'%"></span></div>':'<div class="meter"><span style="width:'+(n/tot*100)+'%;background:var(--accent)"></span></div>')+'<span class="mono">'+n+'</span></div>'});
+  h+='</div>';
+  const top=pr[0], sec=pr[1];
+  if(A.answered){h+='<p>Most frequent approach: <b>'+PATTERNS[top[0]][0].toLowerCase()+'</b> ('+top[1]+' of '+A.answered+')'+(sec[1]>=top[1]-1&&sec[1]>0?', closely followed by <b>'+PATTERNS[sec[0]][0].toLowerCase()+'</b> ('+sec[1]+')':'')+'. '+(top[1]/A.answered>=0.45?"A clear preferred style.":"No single style dominates; approach varies with the situation.")+'</p>'}
+  const tm=[];
+  if(A.fast.length) tm.push(A.fast.length+' situation(s) answered in under 6 seconds: <span class="mono">'+A.fast.join(", ")+'</span>.');
+  if(A.changed.length) tm.push('Answer changed twice or more: <span class="mono">'+A.changed.join(", ")+'</span>.');
+  if(ex.timeTakenSeconds<6*60) tm.push('Finished in '+fmtDur(ex.timeTakenSeconds)+', well within the limit; check whether situations were read fully.');
+  if(tm.length) h+='<p class="muted m" style="font-size:.9rem">'+tm.join(" ")+'</p>';
+  h+='</section>';
+
+  // consistency
+  h+='<section class="rep-sec"><h3>Consistency across related scenarios</h3><div class="tbl-wrap"><table><tr><th>Related situations</th><th>Dimension</th><th>Choices</th><th>Result</th></tr>';
+  A.pairs.forEach(p=>{const cls=p.status==="Consistent"?"ok":p.status==="Inconsistent"?"crit":p.status==="Some variation"?"warn":"";h+='<tr><td>'+esc(p.label)+'<br><span class="mono muted m" style="font-size:.8rem">'+p.a+' ↔ '+p.b+'</span></td><td>'+DIMS[p.d]+'</td><td class="mono">'+(p.oa||"–")+' · '+(p.ob||"–")+'</td><td>'+(forFile?esc(p.status):'<span class="chip '+cls+'">'+esc(p.status)+'</span>')+'</td></tr>'});
+  h+='</table></div></section>';
+
+  // conflicts
+  h+='<section class="rep-sec"><h3>Conflicting answers</h3>';
+  const incons=A.pairs.filter(p=>p.status==="Inconsistent");
+  if(!A.rules.length&&!incons.length) h+='<p class="muted m">No notable conflicts between answers.</p>';
+  else{h+='<ul>';A.rules.forEach(r=>h+='<li>'+esc(r.msg)+' <span class="mono muted m" style="font-size:.8rem">['+r.hit.join(", ")+']</span></li>');incons.forEach(p=>h+='<li>'+esc(p.label)+': opposite ends of '+DIMS[p.d].toLowerCase()+' across the two situations. <span class="mono muted m" style="font-size:.8rem">['+p.oa+', '+p.ob+']</span></li>');h+='</ul>'}
+  h+='</section>';
+
+  // strengths / weaknesses
+  const strengths=A.ranked.filter(([,v])=>v.score>=60).slice(0,3);
+  const weak=A.ranked.slice().reverse().filter(([,v])=>v.score<50).slice(0,3);
+  h+='<section class="rep-sec"><div class="two"><div class="card"><h3>Possible strengths</h3><ul>'+(strengths.length?strengths.map(([d,v])=>'<li><b>'+DIMS[d]+'</b> ('+v.score+'). '+OBS[d][0]+'</li>').join(""):'<li class="muted m">No dimension stood out clearly. Choices were balanced or mixed.</li>')+'</ul></div>';
+  h+='<div class="card"><h3>Potential weaknesses</h3><ul>'+(weak.length?weak.map(([d,v])=>'<li><b>'+DIMS[d]+'</b> ('+v.score+'). '+OBS[d][2]+'</li>').join(""):'<li class="muted m">No dimension fell below the midpoint. Lowest relative area: <b>'+(A.ranked.length?DIMS[A.ranked[A.ranked.length-1][0]]:"–")+'</b>.</li>')+'</ul></div></div></section>';
+
+  // discussion
+  const disc=[];
+  A.ranked.slice().reverse().filter(([,v])=>v.score<55).slice(0,4).forEach(([d])=>disc.push('<b>'+DIMS[d]+'.</b> '+DISCUSS[d]));
+  A.notes.forEach(n=>disc.push('<span class="mono">'+n.o+'</span> · '+esc(n.note)+' <span class="muted m">(“'+esc(byId[n.q].opts.find(o=>o.id===n.o).text)+'”)</span>'));
+  if(A.rules.length) disc.push('<b>Conflicting answers above.</b> Ask how they would see each situation if the roles were reversed.');
+  if(ex.unansweredQuestionIds.length) disc.push('<b>Unanswered situations</b> (<span class="mono">'+ex.unansweredQuestionIds.join(", ")+'</span>). Ask what they would have chosen.');
+  h+='<section class="rep-sec"><h3>Areas requiring real-life discussion</h3>'+(disc.length?'<ul>'+disc.map(x=>'<li>'+x+'</li>').join("")+'</ul>':'<p class="muted m">No specific areas flagged. Use the category observations as general conversation starters.</p>')+'</section>';
+
+  h+=intimacySection(ex,forFile);
+  // full responses
+  h+='<section class="rep-sec"><details'+(forFile?' open':'')+'><summary>All responses ('+ex.responses.length+')</summary><div class="tbl-wrap" style="margin-top:10px"><table><tr><th>#</th><th>Situation</th><th>Selected</th><th>Time</th></tr>';
+  ex.responses.forEach(r=>{const p=r.selectedOptionId&&key().k[r.questionId]&&key().k[r.questionId][r.selectedOptionId];h+='<tr><td class="mono">'+pad(r.n)+'</td><td>'+esc(r.question)+'</td><td>'+(r.selectedOptionId?'<span class="mono">'+esc(r.selectedOptionId)+'</span> · '+esc(r.selectedOptionText)+(p?'<br><span class="muted m" style="font-size:.8rem">'+PATTERNS[p[1]][0]+'</span>':''):'<span class="muted m">Unanswered</span>')+'</td><td class="mono">'+(r.secondsOnQuestion||0)+'s</td></tr>'});
+  h+='</table></div></details></section>';
+  return h;
+}
+const IXD={ic:"Communication about intimacy",cr:"Consent & respect for boundaries",fx:"Flexibility with differences"};
+const IXOBS={ic:["Comfortable raising and discussing intimacy openly.","Can discuss intimacy with time and trust.","Tends to avoid or hold back discussion about intimacy."],cr:["Consistently respects a partner's no and protects their own limits.","Generally respects boundaries, with some mixed signals.","Some choices press on a partner's refusal or override own limits."],fx:["Willing to find middle ground when needs differ.","Adjusts in some areas, holds firm in others.","Expects the other person to adjust, or resists compromise."]};
+function intimacySection(ex,forFile){
+  const m=ex.intimacyModule; let h='<section class="rep-sec"><h3>Intimacy &amp; sexual compatibility (optional)</h3>';
+  if(!m||m.status!=="completed") return h+'<p class="muted m">Not taken. This section is optional; not taking it says nothing about the participant.</p></section>';
+  const map=key().ik, sel={}; (m.responses||[]).forEach(r=>{if(r.selectedOptionId&&map[r.questionId]&&map[r.questionId][r.selectedOptionId])sel[r.questionId]=r.selectedOptionId});
+  const col=s=>forFile?["#2e8a63","#6a52cf","#b07a14"][band(s)]:bandColor(s);
+  h+='<p class="muted m" style="font-size:.88rem">Self-reported preferences of one person. Compatibility depends on how these compare with a partner\'s answers, so read them side by side if both have taken it. Discuss privately and respectfully.</p><div class="dims">';
+  for(const d in IXD){let sum=0,n=0,cov=0;for(const q in map){const opts=Object.values(map[q]);if(!opts.some(o=>d in o[0]))continue;const vals=opts.map(o=>o[0][d]||0),mn=Math.min(...vals),mx=Math.max(...vals);if(mx===mn)continue;cov++;if(!sel[q])continue;sum+=((map[q][sel[q]][0][d]||0)-mn)/(mx-mn);n++}
+    const sc=n?Math.round(sum/n*100):null;
+    h+='<div class="dim"><span class="nm">'+IXD[d]+'</span>'+(forFile?'<div class="bar"><span style="width:'+(sc||0)+'%;background:'+(sc===null?"#ccc":col(sc))+'"></span></div>':'<div class="meter"><span style="width:'+(sc||0)+'%;background:'+(sc===null?"var(--line)":col(sc))+'"></span></div>')+'<span class="val mono">'+(sc===null?"–":sc)+'</span><p class="obs m">'+(sc===null?"No responses.":'<b style="color:'+col(sc)+'">'+bandLabel(sc)+'.</b> '+IXOBS[d][band(sc)])+'</p></div>'}
+  h+='</div>';
+  const pref=q=>{const r=m.responses.find(x=>x.questionId===q);return r&&r.selectedOptionText?esc(r.selectedOptionText):'<span class="muted m">Not answered</span>'};
+  h+='<div class="two"><div class="card"><b>Importance of physical intimacy</b><p style="margin-top:6px">'+pref("X1")+'</p></div><div class="card"><b>Emotional and physical closeness</b><p style="margin-top:6px">'+pref("X6")+'</p></div></div>';
+  const notes=Object.entries(sel).filter(([q,o])=>map[q][o][2]).map(([q,o])=>'<li><span class="mono">'+o+'</span> · '+esc(map[q][o][2])+'</li>');
+  h+='<div><b>For private discussion</b><ul>'+(notes.length?notes.join(""):'')+'<li>Compare expectations on frequency and importance with the partner\'s answers.</li><li>Ask how each person prefers to raise a need or say no.</li></ul></div>';
+  return h+'</section>';
+}
+function renderAdmin(ex){
+  let A;
+  try{A=analyse(ex)}catch(e){$("#adm-load-err").textContent=e.message;return}
+  $("#adm-load-err").textContent="";
+  const box=$("#adm-report");
+  box.innerHTML='<div class="row" style="justify-content:space-between;margin-bottom:6px"><button id="adm-another" class="btn sm">← Load another file</button><button id="adm-dl" class="btn primary sm">Download administrator report</button></div>'+adminReportInner(ex,A,false);
+  box.hidden=false; $("#adm-load").hidden=true; window.scrollTo(0,0);
+  $("#adm-another").onclick=()=>{box.hidden=true;$("#adm-load").hidden=false;$("#adm-file").value=""};
+  $("#adm-dl").onclick=()=>download(ex.assessmentId+"-admin-report.html",docShell(ex.assessmentId+" administrator report",'<h1>The Human Decision Project</h1>'+adminReportInner(ex,A,true)),"text/html");
+}
+function openAdmin(){
+  show("v-admin");
+  $("#adm-gate").hidden=adminUnlocked; $("#adm-load").hidden=!adminUnlocked; $("#adm-report").hidden=true;
+  const local=(S&&S.submitted)?buildExport(S):((load(HIST)||[])[0]||null);
+  $("#adm-local").hidden=!local;
+  $("#adm-use-local").onclick=()=>renderAdmin(local);
+  if(!adminUnlocked) setTimeout(()=>$("#adm-code").focus(),50);
+}
+document.querySelectorAll("[data-go-admin]").forEach(b=>b.addEventListener("click",()=>{location.hash="admin"}));
+$("#adm-unlock").onclick=()=>{ if(hdpHash($("#adm-code").value.trim())===ADMIN_HASH){adminUnlocked=true;$("#adm-err").textContent="";$("#adm-code").value="";openAdmin()} else $("#adm-err").textContent="That passcode is not correct." };
+$("#adm-code").addEventListener("keydown",e=>{if(e.key==="Enter")$("#adm-unlock").click()});
+$("#adm-file").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{renderAdmin(JSON.parse(r.result))}catch(err){$("#adm-load-err").textContent="That file couldn't be read as JSON. Choose the .json file exported at the end of the assessment."}};r.readAsText(f)});
+$("#adm-parse").onclick=()=>{try{renderAdmin(JSON.parse($("#adm-paste").value))}catch(e){$("#adm-load-err").textContent="The pasted text isn't valid JSON. Paste the full contents of the response file."}};
+$("#adm-exit").onclick=()=>{location.hash=""};
+
+/* ---------- routing ---------- */
+function route(){
+  if(location.hash==="#admin"){clearInterval(tickTimer);openAdmin();return}
+  if(S&&S.submitted){showDone();return}
+  if(S&&!S.submitted&&remaining()<=0){submit(true);return}
+  if(S&&!S.submitted&&S._entered){startTest();return}
+  show("v-intro");
+}
+window.addEventListener("hashchange",route);
+initIntro();
+route();
+// returning mid-test: go straight back into the test
+if(S&&!S.submitted&&location.hash!=="#admin"&&remaining()>0){S._entered=true;startTest()}
+})();
+</script>
